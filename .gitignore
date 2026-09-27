@@ -1,0 +1,49 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+.env
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Backend (Python)
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.venv_check/
+.pytest_cache/
+.benchmarks/
+NeMo_ai4bharat/
+.vev-*
+call_events.db
+
+# Fine-tuning artefacts: adapters/merged weights/GGUF are GB-scale, rebuild them
+# from finetune/train_lora.py rather than committing them.
+finetune/__pycache__/
+finetune/out/
+finetune/*.gguf
+finetune/aruvi-merged/
+finetune/.venv/
+logs/
+
+# Build artefact of llm-package/ — regenerate rather than commit the zip.
+aruvi-llm-package.zip

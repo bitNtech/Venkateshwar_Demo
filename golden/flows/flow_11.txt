@@ -1,0 +1,79 @@
+FLOW 11
+Billing Inquiry
+
+ INTENT billing.query
+
+ SCENARIO Caller disputes a duplicate line item on a discharge bill and asks for an itemised breakup and payment plan.
+
+ ENTITIES bill_number, admission_dates, disputed_item, amount, itemised_bill_request, payment_plan, ticket_id
+
+ OUTCOME Duplicate ₹2,400 line raised for audit (BIL-9037); revised bill in 48h; EMI option explained.
+
+ AGENT வண க , அ வ ஹா ப ட billing department. நா( ச1Kதா ேப.ேற(.
+ Vanakkam, Aruvi Hospital billing department. Naan Sangeetha pesaren.
+
+ CALLER ேமட , discharge bill-ல ஒ charge ெர6L தடைவ ேபா$L இ K1க மாதEரி ெதரிQH.
+ Madam, discharge bill-la oru charge rendu thadava pottu irukkeenga maathiri theriyuthu.
+
+ AGENT பா*Hடலா சா<. Bill number ெசா =1களா?
+ Paathudalaam sir. Bill number sollungalaa?
+
+ CALLER IP-2024-55810. Patient ேப Anitha, எ( மைனவ . 8th to 11th admit ஆகE இ Nதா1க.
+ IP-2024-55810. Patient peru Anitha, en manaivi. 8th to 11th admit aagi irunthaanga.
+
+ AGENT கEைடJ.LJ. சா<. ெமா*த bill ₹78,640. எNத item-ஐ ெசா e1க?
+ Kidaichuduchu sir. Motha bill ₹78,640. Entha item-ai solreenga?
+
+ CALLER 'Dressing charge ₹2,400'-: ெர6L line-ல வ H. ஆனா dressing ஒேர ஒ தடைவ தா( ப6ணா1க.
+ 'Dressing charge ₹2,400'-nu rendu line-la varuthu. Aanaa dressing ore oru thadava thaan pannaanga.
+
+ AGENT ஒ நEமிஷ , line item-ஐ பா கேற(... ஆமா சா<, 9th- 10th- ெர6L entry இ 3. ந<சA1 notes-ஓட match
+ ப6ணி பா கU .
+ Oru nimisham, line item-ai paakkaren... Aamaam sir, 9th-um 10th-um rendu entry irukku. Nursing notes-oda match panni paakkanum.
+
+ CALLER நா( OU நா2 ]டேவ இ Nேத( ேமட . ஒேர தடைவ தா(.
+ Naan moonu naalum koodave irunthen madam. Ore thadava thaan.
+
+ AGENT g1க ெசா றH சரியா இ கலா சா<. இைத நா( billing audit- 3 அ:5பேற(, nursing chart-ஐ ெவJ. verify
+ ப6Uவா1க. Duplicate-: உjதE ஆனா ₹2,400 bill-ல இ NH கழிJ.Lவா1க.
+ Neenga solrathu sariyaa irukkalaam sir. Ithai naan billing audit-ku anuppuren, nursing chart-ai vechu verify pannuvaanga. Duplicate-nu
+ uruthi aanaa ₹2,400 bill-la irunthu kazhichuduvaanga.
+
+ CALLER எ*தைன நா\ ஆ3 ?
+ Ethanai naal aagum?
+
+ AGENT 48 working hours சா<. Ticket number BIL-9037. Revised bill SMS-ல வ .
+ 48 working hours sir. Ticket number BIL-9037. Revised bill SMS-la varum.
+
+ CALLER ேமட , இ(ெனா வ ஷய — ?c bill-ஐ item வாரியா ப ரிJ. ெகாL க ? Qமா? Insurance- 3 ெகாL கU .
+ Madam, innoru vishayam — muzhu bill-ai item vaariyaa pirichu kodukka mudiyumaa? Insurance-ku kodukkanum.
+
+ AGENT க6 5பா சா<, itemised bill உ1க உரிைம. Room charges, pharmacy, lab, OT, consultant fee, consumables-:
+ தனி*தனியா ப ரிJ. PDF அ:5பேற(. Discharge summary-Q ேச<*H அ:5ப$Lமா?
+ Kandippa sir, itemised bill unga urimai. Room charges, pharmacy, lab, OT, consultant fee, consumables-nu thanithaniyaa pirichu PDF
+ anuppuren. Discharge summary-yum sertthu anuppattumaa?
+
+ CALLER ஆமா , ெர6L ேவU . இ(ெனா(: — rதE ெதாைகைய ஒேர தடைவ க$ட ? யல. ெகாMச ேநர
+ ெகாL க ? Qமா?
+ Aamaam, rendum venum. Innonnu — meethi thogaiyai ore thadava katta mudiyala. Konjam neram kodukka mudiyumaa?
+
+ AGENT ேக$டH 3 தய1க ேவ6டா சா<, இH சாதாரணமான request. ெர6L option இ 3. ஒ(:, credit card
+ இ Nதா OU அ லH ஆj மாச no-cost EMI. ெர6L, hospital-ஓட instalment plan — ?5பH, அjபH நா\(: ெர6L
+ தவைண, extra charge இ ல.
+ Kettathukku thayanga vendaam sir, ithu saathaaranamaana request. Rendu option irukku. Onnu, credit card irunthaa moonu allathu aaru
+ maasa no-cost EMI. Rendu, hospital-oda instalment plan — muppathu, arupathu naal-nnu rendu thavanai, extra charge illa.
+
+ CALLER Instalment plan ந லா இ 3 . Card-ல ேவ6டா .
+ Instalment plan nallaa irukkum. Card-la vendaam.
+
+ AGENT சரி சா<. Audit ? M. ﬁnal amount ﬁx ஆனH , அைத ெர6டா ப ரிJ. schedule ப6ணிLேவா . ஒ simple form
+ sign ப6ண: , அHZ email-ல அ:5பேற(.
+ Sari sir. Audit mudinju final amount fix aanathum, athai rendaa pirichu schedule pannieduvom. Oru simple form sign pannanum, athuvum
+ email-la anuppuren.
+
+ CALLER ெரா ப ந(றA ேமட . ந லா ேப.b1க.
+
+Romba nandri madam. Nallaa pesuneenga.
+
+ AGENT ந(றA சா<. BIL-9037 reference ெவJ. ேகா1க, ெர6L நா\ல நாேன follow up call ப6ேற(. வண க .
+ Nandri sir. BIL-9037 reference vechukkonga, rendu naal-la naane follow up call panren. Vanakkam.

@@ -1,0 +1,281 @@
+"""Normalise what the Tamil ASR hears back into how the agent writes.
+
+IndicConformer is a Tamil model with a Tamil character vocabulary, so it can
+only ever emit Tamil script. A caller saying an English hospital word therefore
+comes back transliterated - "appointment" as "அப்பாயின்மென்ட்", "department" as
+"டிபார்ட்மெண்ட்" - and a dictated phone number comes back as Tamil NUMBER WORDS
+rather than digits.
+
+Measured, real model, ten phrases synthesised and transcribed round-trip:
+
+    SAID   Cardiology-ல ஒரு appointment book பண்ணணும்
+    HEARD  ஒரு அப்பாயிண்ட்மெண்ட் புக் பண்ணணும்
+    SAID   என் bill-ல ஒரு charge தப்பா இருக்கு
+    HEARD  என் பில்ல ஒரு சார்ஜ் தப்பா இருக்கு
+    SAID   என் mobile number 98407 21534
+    HEARD  மொபைல் நம்பர் ஒன்பது எட்டு நான்கு பூஜ்ஜியம் ஏழு இரண்டு ஒன்று ஐந்து மூன்று நான்கு
+
+Three things go wrong downstream if that is passed through untouched:
+
+  1. The transcript shown to a human reads as mangled Tamil, not as the
+     code-mix that was actually spoken.
+  2. The model sees a register that does not match the one it is asked to
+     produce - every exemplar writes English hospital words in Latin script.
+  3. A phone number spelled out in words is not a phone number. Nothing
+     downstream can read it back to the caller or write it down.
+
+The vocabulary here is CLOSED - it is a hospital desk, not open dictation - so
+a lookup table is the right tool and a fuzzy matcher is not: fuzzy matching
+over Tamil script would eventually mangle a real Tamil word, which is a far
+worse failure than leaving one English word transliterated.
+
+Only exact, whole-word matches are rewritten. Anything not in the table is left
+exactly as the ASR produced it.
+"""
+
+from __future__ import annotations
+
+import json
+import logging
+import pathlib
+import re
+
+logger = logging.getLogger("aica.transcript_norm")
+
+# Tamil-script renderings -> the Latin spelling the agent itself uses.
+#
+# Several spellings per word on purpose: the ASR is not consistent about the
+# pulli (்) or about ண/ன, and emitted "அப்பாயின்மென்ட்", "அப்பாயிண்ட்மெண்ட்" and
+# "அப்பாயின்ட்மெண்ட்" for the same word across three runs. Every variant listed
+# was either observed in a round-trip or is the same word with the one
+# character the model flips.
+_ENGLISH_WORDS: dict[str, str] = {
+    # observed in round-trip transcription
+    "அப்பாயின்மென்ட்": "appointment",
+    "அப்பாயின்மெண்ட்": "appointment",
+    "அப்பாயின்ட்மென்ட்": "appointment",
+    "அப்பாயின்ட்மெண்ட்": "appointment",
+    "அப்பாயிண்ட்மென்ட்": "appointment",
+    "அப்பாயிண்ட்மெண்ட்": "appointment",
+    "புக்": "book",
+    "டிபார்ட்மென்ட்": "department",
+    "டிபார்ட்மெண்ட்": "department",
+    "டாக்டர்": "doctor",
+    "பில்": "bill",
+    "பில்ல": "bill-ல",
+    "சார்ஜ்": "charge",
+    "டெஸ்ட்": "test",
+    "ப்ளூட்": "blood",
+    "ப்ளட்": "blood",
+    "மொபைல்": "mobile",
+    "நம்பர்": "number",
+    "இன்ஷூரன்ஸ்": "insurance",
+    "இன்சூரன்ஸ்": "insurance",
+    "கவர்": "cover",
+    # the rest of the desk's vocabulary, same transliteration rules
+    "ரிப்போர்ட்": "report",
+    "ரிசல்ட்": "result",
+    "ஸ்கேன்": "scan",
+    "டேப்லெட்": "tablet",
+    "டாப்லெட்": "tablet",
+    "ரீஃபில்": "refill",
+    "ரீபில்": "refill",
+    "கேன்சல்": "cancel",
+    "கான்சல்": "cancel",
+    "ஸ்லாட்": "slot",
+    "கன்சல்ட்": "consult",
+    "ரெக்கார்ட்": "record",
+    "பாலிசி": "policy",
+    "கிளைம்": "claim",
+    "ரெஜிஸ்டர்": "register",
+    "ரெஃபரல்": "referral",
+    "டிஸ்சார்ஜ்": "discharge",
+    "ஃபாலோஅப்": "follow-up",
+    "ரிவ்யூ": "review",
+    "கம்ப்ளைண்ட்": "complaint",
+    "பேஷண்ட்": "patient",
+    "ஆப்பரேஷன்": "operation",
+    "சர்ஜரி": "surgery",
+    "கார்டியாலஜி": "Cardiology",
+    "டெர்மட்டாலஜி": "Dermatology",
+    "நியூராலஜி": "Neurology",
+    "ஆர்த்தோ": "Ortho",
+    "பீடியாட்ரிக்": "Paediatrics",
+}
+
+# Generated coverage, merged UNDER the table above.
+#
+# The hand table is small, and "small" is the real complaint: a caller who says
+# a word nobody typed into it hears it come back as mangled Tamil.
+# backend/scripts/build_asr_lexicon.py grows it WITHOUT anyone maintaining a
+# list - it takes every Latin word out of golden/ (the prompt, the exemplars,
+# the flow transcripts), speaks each one with the agent's own Tamil voice,
+# transcribes it with the caller's own ASR, and records what came back. Add a
+# department to the prompt and it is covered on the next build.
+#
+# Two properties make this safe to merge blindly, and both matter:
+#
+#   1. It is still EXACT, whole-word matching. HANDOFF.md Sec6c measured every
+#      fuzzy/transliterating alternative and all of them corrupted ordinary
+#      Tamil - "சொல்லுங்க" (tell me) came back as "silence". Going forwards
+#      (English -> expected Tamil form) instead of backwards means a form no
+#      English source produced can never be matched at all.
+#   2. The builder REJECTS any generated form that collides with real Tamil
+#      appearing in golden/, which is what stops the romanised-Tamil words in
+#      the prompt ("aamaam", "anga") from teaching this to rewrite ஆமாம்.
+#
+# The hand table wins every conflict: these entries can only add coverage, and
+# a missing or malformed file simply means the hand table alone, which is
+# exactly the behaviour before this existed.
+_LEXICON_PATH = pathlib.Path(__file__).resolve().parent.parent / "golden" / "asr_lexicon.json"
+
+
+def _load_generated_lexicon() -> dict[str, str]:
+    try:
+        payload = json.loads(_LEXICON_PATH.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return {}
+    except (OSError, ValueError) as error:
+        logger.warning("generated ASR lexicon at %s is unusable: %s", _LEXICON_PATH, error)
+        return {}
+    entries = payload.get("lexicon")
+    if not isinstance(entries, dict):
+        logger.warning("generated ASR lexicon at %s has no 'lexicon' object", _LEXICON_PATH)
+        return {}
+    return {k: v for k, v in entries.items() if isinstance(k, str) and isinstance(v, str) and k and v}
+
+
+_GENERATED = _load_generated_lexicon()
+if _GENERATED:
+    # Hand table last: a measured entry always beats a generated one.
+    _ENGLISH_WORDS = {**_GENERATED, **_ENGLISH_WORDS}
+    logger.info(
+        "ASR normaliser: %d generated entries merged under %d hand-measured ones",
+        len(_GENERATED),
+        len(_ENGLISH_WORDS) - len(_GENERATED),
+    )
+
+
+# Number WORDS -> digits, in all three forms a caller actually produces.
+#
+# 1. Literary Tamil, which the model prefers when it writes out a number:
+#    "ஒன்று, இரண்டு".
+# 2. Spoken Tamil, which is what a caller says: "ஒண்ணு, ரெண்டு".
+# 3. ENGLISH digit names, transliterated - because reading a phone number out
+#    in English is the normal way to do it in Chennai, and a Tamil-only ASR
+#    renders those in Tamil script too. Observed live: a caller reading
+#    9840721534 was transcribed
+#        "நீன் ஏஐட் போர் ஜெரோ செவன் டூ ஒன் பைவ் த்ரீ போர்"
+#    which is nine-eight-four-zero-seven-two-one-five-three-four and matched
+#    nothing at all in the Tamil-only table this replaces.
+#
+# Several of the English forms collide with ordinary Tamil words - "போர்" is
+# "war", "ஒன்" is a fragment - which is exactly what _MIN_DIGIT_RUN protects
+# against: they are only ever read as digits inside a run of four or more.
+_DIGIT_WORDS: dict[str, str] = {
+    # literary Tamil
+    "பூஜ்ஜியம்": "0", "சுழியம்": "0",
+    "ஒன்று": "1", "இரண்டு": "2", "மூன்று": "3", "நான்கு": "4", "ஐந்து": "5",
+    "ஆறு": "6", "ஏழு": "7", "எட்டு": "8", "ஒன்பது": "9",
+    # spoken Tamil
+    "ஒண்ணு": "1", "ரெண்டு": "2", "மூணு": "3", "நாலு": "4", "அஞ்சு": "5",
+    "ஒம்பது": "9",
+    # English digit names as this ASR transliterates them
+    "ஜீரோ": "0", "ஜெரோ": "0", "சீரோ": "0", "ஓ": "0",
+    "ஒன்": "1", "வன்": "1",
+    "டூ": "2", "டு": "2",
+    "த்ரீ": "3", "திரீ": "3",
+    "போர்": "4", "ஃபோர்": "4",
+    "பைவ்": "5", "ஃபைவ்": "5",
+    "சிக்ஸ்": "6", "ஸிக்ஸ்": "6",
+    "செவன்": "7", "சேவன்": "7",
+    "ஏஐட்": "8", "எயிட்": "8", "ஏட்": "8",
+    "நீன்": "9", "நைன்": "9", "நயின்": "9",
+}
+
+# How many number-words in a row before they are read as a dictated number.
+#
+# Inside a sentence the bar is high, because "ரெண்டு தடவை" ("twice") and
+# "மூணு நாள்" ("three days") are ordinary Tamil and turning those into digits
+# would corrupt what the caller said.
+#
+# But a caller reading out a phone number PAUSES between groups, and the VAD
+# endpoints on those pauses. Observed live, one number arrived as three
+# separate transcripts:
+#
+#     ஒன்பது எட்டு        <- "nine eight"
+#     செவன் சிக்ஸ்         <- "seven six"
+#
+# Two words each, so a four-in-a-row rule never fired and the caller watched
+# their number come back as Tamil words. An utterance that is NOTHING BUT
+# number-words is a dictated number whatever its length - there is no sentence
+# around it to misread - so that case only needs two.
+_MIN_DIGIT_RUN = 4
+_MIN_DIGIT_RUN_WHEN_WHOLE_UTTERANCE = 2
+
+_TOKEN_RE = re.compile(r"(\s+)")
+
+
+def _rewrite_english(token: str) -> str:
+    """Map one whole word, preserving any trailing punctuation."""
+    core = token.rstrip(".,?!")
+    trailing = token[len(core):]
+    replacement = _ENGLISH_WORDS.get(core)
+    return f"{replacement}{trailing}" if replacement else token
+
+
+def _join_digit_runs(words: list[str], minimum: int) -> list[str]:
+    """Collapse runs of >= `minimum` number-words into one digit string."""
+    out: list[str] = []
+    run: list[str] = []
+
+    def flush() -> None:
+        if len(run) >= minimum:
+            digits = "".join(_DIGIT_WORDS[w.rstrip(".,?!")] for w in run)
+            # The clause chunker splits on '.', '?' and '!', so a punctuation
+            # mark swallowed here changes how the turn is spoken.
+            trailing = run[-1][len(run[-1].rstrip(".,?!")):]
+            out.append(digits + trailing)
+        else:
+            out.extend(run)
+        run.clear()
+
+    for word in words:
+        if word.rstrip(".,?!") in _DIGIT_WORDS:
+            run.append(word)
+        else:
+            flush()
+            out.append(word)
+    flush()
+    return out
+
+
+def normalize_transcript(text: str) -> str:
+    """Rewrite one ASR transcript into the register the agent writes in.
+
+    Whole-word, exact matches only. Anything unrecognised is passed through
+    untouched, so the worst case is the transcript the ASR already produced.
+    """
+    if not text:
+        return text
+    words = [w for w in _TOKEN_RE.split(text) if w and not w.isspace()]
+    whole_utterance_is_digits = all(w.rstrip(".,?!") in _DIGIT_WORDS for w in words)
+    minimum = (
+        _MIN_DIGIT_RUN_WHEN_WHOLE_UTTERANCE
+        if whole_utterance_is_digits
+        else _MIN_DIGIT_RUN
+    )
+    return " ".join(_rewrite_english(w) for w in _join_digit_runs(words, minimum))
+
+
+if __name__ == "__main__":  # pragma: no cover - manual check
+    import sys
+
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    for line in (
+        "ஒரு அப்பாயிண்ட்மெண்ட் புக் பண்ணணும்",
+        "மொபைல் நம்பர் ஒன்பது எட்டு நான்கு பூஜ்ஜியம் ஏழு இரண்டு ஒன்று ஐந்து மூன்று நான்கு",
+        "என் பில்ல ஒரு சார்ஜ் தப்பா இருக்கு",
+        "ரெண்டு தடவை கூப்பிட்டேன்",
+    ):
+        print(f"{line}\n  -> {normalize_transcript(line)}")

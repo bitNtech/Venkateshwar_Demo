@@ -1,0 +1,95 @@
+FLOW 16
+Clinical / Symptom Call (Nurse Triage)
+
+ INTENT clinical.triage
+
+ SCENARIO Mother calls about a child with 3 days of fever. Nurse-led triage: red-flag screening, no diagnosis over phone, same-day OP slot.
+
+ ENTITIES patient_age, symptom_onset, temperature, red_flags_checked, hydration_status, triage_level, disposition
+
+ OUTCOME Triage: non-emergency, same-day review. Slot 5:30 PM today. Red-flag safety-netting given.
+
+ AGENT வண க , அ வ ஹா ப ட nurse helpline. நா( ெஜயNதE, staﬀ nurse ேப.ேற(. ெசா =1க ேமட .
+ Vanakkam, Aruvi Hospital nurse helpline. Naan Jeyanthi, staff nurse pesaren. Sollunga madam.
+
+ CALLER சA ட<, எ( ெபா6U 3 OU நாளா காnJச வ டமா$ேட13H. எ(ன ப6றH(: ெதரியல.
+ Sister, en ponnukku moonu naala kaaychal vidamaattengudhu. Enna panrathunnu theriyala.
+
+ AGENT கவைல5படாa1க ேமட , நா( ேக$L$L ெசா ேற(. 3ழNைத 3 எ*தைன வய.?
+ Kavalaippadaatheenga madam, naan kettuttu solren. Kuzhanthaikku ethanai vayasu?
+
+ CALLER ஆj வய..
+ Aaru vayasu.
+
+ AGENT காnJச எ*தைன கEரி வ H? Thermometer ெவJ. பா*a1களா?
+ Kaaychal ethanai degree varuthu? Thermometer vechu paatheengalaa?
+
+ CALLER காைலல 101 இ NHJ.. இரZல 102 வைர 3 ேபா3H.
+ Kaalaila 101 irunthuchu. Iravula 102 varaikkum poguthu.
+
+ AGENT சரி ேமட . இ5ேபா சAல ? கEயமான ேக\வ ேக$ேப(, g1க ஆமா இ ல(: ெசா =1க. 3ழNைத 3 OJ.
+ வ ட சAரமமா இ கா? h கEர h கEர OJ. வா13தா?
+ Sari madam. Ippo sila mukkiyamaana kelvi ketpen, neenga aamaam illa-nnu sollunga. Kuzhanthaikku moochu vida siramamaa irukkaa?
+ Seekkiram seekkiram moochu vaanguthaa?
+
+ CALLER இ ல, OJ. நா<ம தா(.
+ Illa, moochu normal thaan.
+
+ AGENT ந லH. வ#5P மாதEரி ஏதாவH வNHJசா? உட Pல சAவ5பா த 5P, இ ல சA(ன சA(ன ர*த P\ளி மாதEரி
+ ஏதாவH?
+ Nallathu. Valippu maathiri ethaavathu vanthuchaa? Udambula sivappaa thadippu, illa chinna chinna rattha pulli maathiri ethaavathu?
+
+ CALLER இ ல சA ட<, அ5ப எHZ இ ல.
+ Illa sister, appadi ethuvum illa.
+
+ AGENT த6ணி 3 3தா? சAjg< சரியா ேபா3தா — நா\ ஒ(: 3 நாலM. தடைவயாவH?
+ Thanni kudikkuthaa? Sirunīr sariyaa poguthaa — naal onnukku naalanju thadavaiyaavathu?
+
+ CALLER த6ணி 3 3H. சAjg< ெகாMச 3ைறவா தா( இ 3, ஆனா ேபா3H.
+ Thanni kudikkuthu. Sirunīr konjam kuraivaa thaan irukku, aanaa poguthu.
+
+ AGENT சரி. 3ழNைத வ ைளயாLதா, இ ல ெரா ப ேசா<வா l1கE$ேட இ கா? ]5ப $டா பதE ெசா =தா?
+ Sari. Kuzhanthai vilaiyaaduthaa, illa romba sorvaa thoongitte irukkaa? Koopittaa pathil solluthaa?
+
+ CALLER ெகாMச ேசா<வா தா( இ 3. ஆனா ]5ப $டா ேப.H, சா5பாL ெகாMச சா5ப LH.
+ Konjam sorvaa thaan irukku. Aanaa koopittaa pesuthu, saappaadu konjam saappiduthu.
+
+ AGENT ந லH ேமட . இ5ேபாவைர 3 அவசர அறA3றA எHZ இ ல — அH ஆjதலான வ ஷய . ஆனா OU நா\
+ காnJச ெதாட<Nதா, இNத season-ல dengue, typhoid மாதEரி எைதQ த\ளி ெவ க ? யாH. அதனால இ(ைன ேக
+ doctor பா கறH தா( சரி.
+ Nallathu madam. Ippovaraikkum avasara arikuri ethuvum illa — athu aaruthalaana vishayam. Aanaa moonu naal kaaychal thodarnthaa,
+ intha season-la dengue, typhoid maathiri ethaiyum thalli vekka mudiyaathu. Athanaala innaikke doctor paakkarathu thaan sari.
+
+ CALLER சA ட<, dengue-ஆ இ 3மா? பயமா இ 3.
+ Sister, dengue-aa irukkumaa? Bhayamaa irukku.
+
+ AGENT Phone-ல அைத நா( ெசா ல ? யாH ேமட — ெசா லZ ]டாH. Blood test ப6ணா தா( ெதரிQ . இ5ேபா
+ பய5பLற அளZ 3 எHZ இ ல, ஆனா த\ளி ேபாடZ ேவ6டா . இ(ைன 3 மாைல 5:30- 3 Dr. Shanthi-கE$ட slot
+ இ 3, book ப6ணிடவா?
+ Phone-la athai naan solla mudiyaathu madam — sollavum koodaathu. Blood test pannaa thaan theriyum. Ippo bhayappadura alavukku
+ ethuvum illa, aanaa thalli podavum vendaam. Innaikku maalai 5:30-ku Dr. Shanthi-kitta slot irukku, book pannidavaa?
+
+ CALLER ஆமா ப6ணிL1க சA ட<. அHவைர 3 நா( எ(ன ப6ண: ?
+ Aamaam pannidunga sister. Athuvaraikkum naan enna pannanum?
+
+AGENT ெகாMச ெகாMசமா அ க த6ணி, g<ேமா<, இளg< ெகாL1க. Doctor ?(னா எcதE ெகாL*த
+ paracetamol dose இ Nதா அைத ம$L ெதாட 1க — நானா PH ம NH ெசா ல மா$ேட(. உட ைப ஈர* Hணியால
+ HைடJ. வ L1க.
+ Konjam konjamaa adikkadi thanni, neermore, ilaneer kodunga. Doctor munnadi ezhuthi kodutha paracetamol dose irunthaa athai mattum
+ thodarunga — naanaa puthu marunthu solla maatten. Udambai eera thuniyaal thudaichu vidunga.
+
+ CALLER சரி சA ட<.
+ Sari sister.
+
+ AGENT இH ெரா ப ? கEய ேமட , கவனமா ேக21க. இH 3\ள 3ழNைத 3 வ#5P வNதா, OJ. வா13னா,
+ எc5ப ? யாத அளZ 3 l13னா, ர*த P\ளி வNதா, இ ல எ$L மணி ேநரமா சAjgேர ேபாகைல(னா — 5:30 slot-
+ 3 கா*தE காa1க. உடேன emergency- 3 ]$ $L வNHL1க.
+ Ithu romba mukkiyam madam, kavanamaa kelunga. Ithukkulla kuzhanthaikku valippu vanthaa, moochu vaangunaa, ezhuppa mudiyaatha
+ alavukku thoongunaa, rattha pulli vanthaa, illa ettu mani neramaa sirunīre pogalainnaa — 5:30 slot-ku kaathirukkaatheenga. Udane
+ emergency-ku kootittu vanthudunga.
+
+ CALLER சரி சA ட<, ஞாபக ெவJ. கேற(. ெரா ப ந(றA.
+ Sari sister, gnyaabagam vechukkaren. Romba nandri.
+
+ AGENT ந(றA ேமட . Appointment ID APT-81990. மாைல பா கலா . வண க .
+ Nandri madam. Appointment ID APT-81990. Maalai paakkalaam. Vanakkam.

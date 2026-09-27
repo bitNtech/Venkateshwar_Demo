@@ -1,0 +1,100 @@
+FLOW 20
+Angry / Frustrated Caller
+
+ INTENT complaint.escalation_angry
+
+ SCENARIO Third call about the same unresolved refund. Caller is shouting and threatens consumer court. Agent absorbs the anger, does not
+ argue, takes personal ownership.
+
+ ENTITIES prior_ticket_ids, refund_amount, days_pending, escalation_level, supervisor_name, committed_callback, goodwill_action
+
+ OUTCOME Ownership taken; finance manager callback same day 4 PM; refund processed with escalation ESC-771.
+
+ AGENT வண க , அ வ ஹா ப ட . நா( ஷா#னி ேப.ேற(.
+ Vanakkam, Aruvi Hospital. Naan Shalini pesaren.
+
+ CALLER வண க எ லா ேவ6டா ! இH OணாவH தடைவ நா( call ப6றH. எ( பண இ(: வரல. உ1க
+ hospital-ல யா ேம ேவைல பா க மா$q1களா?
+ Vanakkam ellaam vendaam! Ithu moonaavathu thadava naan call panrathu. En panam innum varala. Unga hospital-la yaarume velai
+ paakka maatteengalaa?
+
+ AGENT சா<, g1க ேகாப5பLறH நEயாய . OU தடைவ call ப6ணிQ ப ரJசைன aரைல(னா, அH எ1க த5P தா(.
+ நா( வாத ப6ண ேபாறH இ ல.
+ Sir, neenga kobappadurathu niyaayam. Moonu thadava call panniyum prachanai theeralainnaa, athu enga thappu thaan. Naan vaatham
+ panna porathu illa.
+
+ CALLER ஒmெவா தடைவQ இேத தா( ெசா e1க! 'ெர6L நா\ல வ ', 'ஒ வார*Hல வ '. இ ப*தM. நா\
+ ஆய LJ.!
+ Ovvoru thadavaiyum ithe thaan solreenga! 'Rendu naal-la varum', 'oru vaarathula varum'. Irupathanju naal aayiduchu!
+
+ AGENT இ ப*தM. நா\ — அH ெரா ப அதEக சா<. சா 3 ெசா ல மா$ேட(. Ticket number ெசா =1க, நா(
+ இ5பேவ தEறNH பா கேற(, ேபசA$ேட இ ேக(.
+ Irupathanju naal — athu romba athikam sir. Saakku solla maatten. Ticket number sollunga, naan ippave thirandhu paakkaren, pesitte
+ irukken.
+
+ CALLER BIL-8802. அ5Pற BIL-8931. ெர6L g1க ெகாL*தH தா(.
+ BIL-8802. Appuram BIL-8931. Rendum neenga koduthathu thaan.
+
+ AGENT ெர6ைடQ பா கேற(... ஒ நEமிஷ சா<... சரி, இ5ேபா என 3 ெதளிவா ெதரிQH. ₹14,600 refund, 3rd ேததE
+ approve ஆகE இ 3. ஆனா ﬁnance team-ல bank details mismatch-(: hold-ல ேபா$L ெவJசA கா1க. உ1க2 3
+ அைத யா ெசா லைல.
+ Rendaiyum paakkaren... Oru nimisham sir... Sari, ippo enakku thelivaa theriyuthu. ₹14,600 refund, 3rd thethi approve aagi irukku. Aanaa
+ finance team-la bank details mismatch-nnu hold-la pottu vechirukkaanga. Ungalukku athai yaarum sollalai.
+
+ CALLER எ(னH? இ ப*தM. நாளா hold-ல ெவJசA K1களா? என 3 ஒ phone call ]ட ப6ண ? யாதா?
+ Ennathu? Irupathanju naalaa hold-la vechirukkeengalaa? Enakku oru phone call kooda panna mudiyaathaa?
+
+ AGENT ? Q சா<, ப6ணி இ கU . அைத ப6ணைல — அH எ1க process-ஓட ேதா வ . உ1க ேகாப ?c க
+ நEயாய .
+ Mudiyum sir, panni irukkanum. Athai pannalai — athu enga process-oda tholvi. Unga kobam muzhukka niyaayam.
+
+ CALLER என 3 ம(னி5P ேவ6டா ேமட . பண ேவU . இ ைல(னா நா( consumer court- 3 ேபாேவ(.
+ Enakku mannippu vendaam madam. Panam venum. Illainnaa naan consumer court-ku poven.
+
+ AGENT அH உ1க உரிைம சா<, அைத நா( தL க ேபாறH இ ல. ஆனா அH 3 ேபாற ?(னா இ(ைன ேக இைத
+ ? J. பா கலா . Mismatch எ(ன(: பா*தா — account name-ல initial வ *தEயாச . உ1க bank passbook-ல இ கEற
+ exact name-ஐ ெசா =1க.
+ Athu unga urimai sir, athai naan thadukka porathu illa. Aanaa athukku pora munnadi innaikke ithai mudichu paakkalaam. Mismatch
+ ennannu paathaa — account name-la initial viththiyaasam. Unga bank passbook-la irukkira exact name-ai sollunga.
+
+ CALLER R. Manikandan. R ?த ல, dot ேபா$L.
+ R. Manikandan. R muthalla, dot pottu.
+
+ AGENT System-ல 'Manikandan R'-: இ 3. அH தா( ப ரJசைன. Correct ப6ணி$ேட(. இ5ேபா நா( எ(ன ப6ண
+ ேபாேற(: ெசா ேற( சா<, ேக21க.
+ System-la 'Manikandan R'-nu irukku. Athu thaan prachanai. Correct pannitten. Ippo naan enna panna porennu solren sir, kelunga.
+
+ CALLER ெசா =1க.
+ Sollunga.
+
+ AGENT ஒ(: — இைத நா( escalation-ஆ மா*தE$ேட(, number ESC-771. இH இனிேம எ1க ﬁnance manager Ravindran
+ சா< Kழ ேநர யா வ . ெர6L — அவ இ(ைன 3 மாைல நா= மணி 3\ள உ1க2 3 ேநரா call ப6Uவா .
+ OU — இNத case-ஐ நாேன personally track ப6Uேவ(, நாைள 3 காைல நாேன உ1க2 3 call ப6ணி status
+ ெசா ேவ(.
+
+Onnu — ithai naan escalation-aa maathitten, number ESC-771. Ithu inime enga finance manager Ravindran sir keezha neradiyaa varum.
+ Rendu — avaru innaikku maalai naalu manikkulla ungalukku neraa call pannuvaaru. Moonu — intha case-ai naane personally track
+ panniven, naalaikku kaalai naane ungalukku call panni status solven.
+
+ CALLER ேமட , இH 3 ?(னா Q இ5ப தா( ெசா(னா1க.
+ Madam, ithukku munnaadiyum ippadi thaan sonnaanga.
+
+ AGENT ெதரிQ சா<. அதனால நா( ஒ வ *தEயாச ப6ேற( — எ( ேப ஷா#னி, employee ID 4472. இைத எcதE
+ ெவJ. ேகா1க. நாைள 3 காைல ப*H மணி 3\ள எ(கE$ட இ NH call வரைல(னா, இNத ID ெசா # supervisor-
+ ஐ ேக21க. நா( ெபாj5ேபiகேற(.
+ Theriyum sir. Athanaala naan oru viththiyaasam panren — en peru Shalini, employee ID 4472. Ithai ezhuthi vechukkonga. Naalaikku kaalai
+ pathu manikkulla enkitta irunthu call varalainnaa, intha ID solli supervisor-ai kelunga. Naan poruppekkaren.
+
+ CALLER ...சரி ேமட . இ5ேபா ெகாMச ந ப ைக வ H. க*HனH 3 ம(னிJ.L1க, ெரா ப எரிJசலா இ NHJ..
+ ...Sari madam. Ippo konjam nambikkai varuthu. Kathunathukku mannichudunga, romba erichalaa irunthuchu.
+
+ AGENT பரவா ல சா<, g1க க*தைல — உ1க ப ரJசைனைய ெசா(b1க. அmவளZ தா(. Bank-ல name correct
+ ஆய LJ., refund இனி OU working days-ல வNHL . Ravindran சா< call-ஐ எதE<பா 1க.
+ Paravaalla sir, neenga kathalai — unga prachanaiyai sonneenga. Avvalavu thaan. Bank-la name correct aayiduchu, refund ini moonu
+ working days-la vanthudum. Ravindran sir call-ai ethirpaarunga.
+
+ CALLER ெரா ப ந(றA ேமட . g1க தா( ?த ல ஒc1கா ேப.b1க.
+ Romba nandri madam. Neenga thaan muthalla ozhungaa pesuneenga.
+
+ AGENT ந(றA சா<. நாைள 3 காைல ேப.ேவா . வண க .
+ Nandri sir. Naalaikku kaalai pesuvom. Vanakkam.

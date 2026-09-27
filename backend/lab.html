@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ARUVI Voice Test</title>
+<style>
+  :root{
+    --ink:#16191d; --muted:#6b7280; --faint:#9ca3af; --line:#e5e7eb;
+    --page:#f7f8f8; --paper:#fff; --green:#2f6f4f; --green-soft:#eef6f1;
+    --amber-soft:#fdf9f1; --red:#b04a45; --red-soft:#fdf2f1; --blue-soft:#eef3f9;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--page);color:var(--ink);
+    font:16px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+  .wrap{width:min(100%,720px);margin:0 auto;padding:24px 16px 40px}
+  h1{margin:0;font-size:1.3rem;letter-spacing:-.02em}
+  h1 b{color:var(--green)}
+  .sub{color:var(--muted);font-size:.85rem;margin-top:2px}
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:16px}
+  .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  button{border:0;border-radius:10px;font:600 1rem/1 inherit;cursor:pointer;padding:13px 22px}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  .start{background:var(--green);color:#fff}
+  .stop{background:#fff;color:var(--red);border:1px solid #ebcfcc}
+  .status{margin-top:16px;font-size:1.05rem;font-weight:600}
+  .status.you{color:var(--green)} .status.agent{color:#3b6ea5}
+  .meter{height:8px;border-radius:4px;background:#eef0f1;margin-top:8px;overflow:hidden}
+  .meter i{display:block;height:100%;width:0;background:var(--green);transition:width .08s}
+  .facts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .fact{padding:6px 12px;border-radius:99px;border:1px solid var(--line);background:#fbfbfa;font-size:.85rem;color:var(--muted)}
+  .fact b{color:var(--ink);font-weight:600}
+  .fact.bad{background:var(--red-soft);border-color:#ebcfcc;color:#8c3a36}
+  #log{display:flex;flex-direction:column;gap:10px}
+  .msg{padding:10px 13px;border-radius:12px;max-width:88%}
+  .msg .who{display:block;font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);margin-bottom:2px}
+  .msg .meta{display:block;font-size:.75rem;color:var(--faint);margin-top:3px}
+  .you{background:#f1f2f3;align-self:flex-end}
+  .you.live{opacity:.6}
+  .agent{background:var(--green-soft);align-self:flex-start}
+  .filler{background:var(--amber-soft);align-self:flex-start}
+  .err{background:var(--red-soft);color:#8c3a36;font-size:.85rem;align-self:center}
+  .empty{color:var(--faint);text-align:center;padding:26px 0;font-size:.9rem}
+  .tip{color:var(--faint);font-size:.8rem;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1><b>ARUVI</b> voice test</h1>
+  <div class="sub">Speak Tamil. Check what it hears, how fast, and how it addresses you.</div>
+
+  <div class="card">
+    <div class="controls">
+      <button class="start" id="start">Start</button>
+      <button class="stop" id="stop" disabled>Stop</button>
+    </div>
+    <div class="status" id="status">Press Start, then allow the microphone.</div>
+    <div class="meter"><i id="level"></i></div>
+    <div class="facts">
+      <span class="fact" id="asr">Speech-to-text: —</span>
+      <span class="fact">Addressed as: <b id="honorific">not decided yet</b></span>
+    </div>
+    <div class="tip">Headphones work best. Wait for the greeting to finish before you speak.</div>
+  </div>
+
+  <div class="card">
+    <div id="log"><div class="empty">Your conversation will appear here.</div></div>
+  </div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let ws = null, micStream = null, micCtx = null, micNode = null, audioCtx = null;
+let playAt = 0, sampleRate = 24000, queued = [], fillerNext = false, fillers = [];
+let live = null, endedAt = 0, agentMsg = null;
+
+function add(cls, who, text, meta) {
+  const log = $("log");
+  if (log.querySelector(".empty")) log.innerHTML = "";
+  const d = document.createElement("div");
+  d.className = "msg " + cls;
+  if (who) { const w = document.createElement("span"); w.className = "who"; w.textContent = who; d.appendChild(w); }
+  const t = document.createElement("span"); t.className = "text"; t.textContent = text; d.appendChild(t);
+  if (meta) setMeta(d, meta);
+  log.appendChild(d);
+  d.scrollIntoView({ block: "end", behavior: "smooth" });
+  return d;
+}
+function setMeta(d, meta) {
+  let m = d.querySelector(".meta");
+  if (!m) { m = document.createElement("span"); m.className = "meta"; d.appendChild(m); }
+  m.textContent = meta;
+}
+const since = () => ((performance.now() - endedAt) / 1000).toFixed(2) + "s";
+function status(text, cls) { const s = $("status"); s.textContent = text; s.className = "status " + (cls || ""); }
+
+// Agent audio. The frame right after agent_filler is the filler; filler_stop
+// fades just that frame out when the real reply is ready (backend/filler.py).
+const REBUFFER_S = 0.1;
+function playPcm(buf) {
+  const pcm = new Int16Array(buf);
+  if (!pcm.length || !audioCtx) return;
+  const f32 = new Float32Array(pcm.length);
+  for (let i = 0; i < pcm.length; i++) f32[i] = pcm[i] / 32768;
+  const ab = audioCtx.createBuffer(1, f32.length, sampleRate);
+  ab.copyToChannel(f32, 0);
+  const src = audioCtx.createBufferSource();
+  src.buffer = ab;
+  if (fillerNext) {
+    const gain = audioCtx.createGain();
+    src.connect(gain); gain.connect(audioCtx.destination);
+    fillers.push({ src, gain }); fillerNext = false;
+  } else {
+    src.connect(audioCtx.destination);
+  }
+  const t = audioCtx.currentTime;
+  // Ran dry (or first audio): start a little ahead. A streaming engine
+  // (Fish) delivers at about realtime in small chunks, so starting each
+  // chunk flush against "now" turns every late one into a click.
+  if (playAt < t) playAt = t + REBUFFER_S;
+  src.start(playAt); playAt += ab.duration;
+  queued.push(src);
+  src.onended = () => { queued = queued.filter(s => s !== src); };
+}
+function stopFiller() {
+  const t = audioCtx.currentTime;
+  for (const { src, gain } of fillers) {
+    gain.gain.setValueAtTime(gain.gain.value, t);
+    gain.gain.linearRampToValueAtTime(0, t + 0.03);
+    try { src.stop(t + 0.03); } catch (e) {}
+  }
+  fillers = []; playAt = Math.min(playAt, t + 0.03);
+}
+function stopPlayback() {
+  for (const s of queued) { try { s.stop(); } catch (e) {} }
+  queued = []; fillers = []; fillerNext = false; playAt = audioCtx.currentTime;
+}
+
+function onEvent(m) {
+  switch (m.type) {
+    case "ready": {
+      const a = $("asr");
+      a.textContent = "Speech-to-text: " + (m.asr_ready ? "ready" : "NOT loaded");
+      a.className = "fact" + (m.asr_ready ? "" : " bad");
+      break;
+    }
+    case "vad_start":
+      status("You're speaking…", "you");
+      live = add("you live", "You", "…");
+      break;
+    case "partial_transcript":
+      if (live) live.querySelector(".text").textContent = m.text;
+      break;
+    case "vad_end":
+      endedAt = performance.now();
+      status("Listening…");
+      break;
+    case "transcript":
+      if (!live) live = add("you", "You", "");
+      live.classList.remove("live");
+      if (m.text) {
+        live.querySelector(".text").textContent = m.text;
+        setMeta(live, `transcribed ${since()} after you stopped`);
+      } else {
+        live.remove();  // noise, not speech: no turn is taken
+      }
+      live = null;
+      break;
+    case "echo_discarded":
+      if (live) { live.remove(); live = null; }
+      break;
+    case "caller_honorific":
+      $("honorific").textContent = m.honorific;
+      break;
+    case "agent_speaking_start":
+      if (m.sample_rate) sampleRate = m.sample_rate;
+      status("Agent speaking…", "agent");
+      agentMsg = null;
+      break;
+    case "agent_filler":
+      fillerNext = true;
+      add("filler", "Agent (filler)", m.text, endedAt ? `${since()} after you stopped` : "");
+      break;
+    case "filler_stop":
+      stopFiller();
+      break;
+    case "agent_clause":
+      if (!agentMsg) agentMsg = add("agent", "Agent", m.text);
+      else agentMsg.querySelector(".text").textContent += " " + m.text;
+      break;
+    case "agent_speaking_end":
+      agentMsg = null; status("Listening…");
+      break;
+    case "agent_interrupted":
+      stopPlayback(); agentMsg = null; status("Listening…");
+      break;
+    case "agent_error":
+      status("Listening…");
+      add("err", null, /connection/i.test(m.message)
+        ? "No reply: the LLM is not running on this machine (expected here)."
+        : m.message);
+      break;
+    case "asr_error": case "pipeline_error": case "protocol_error": case "agent_audio_error":
+      add("err", null, m.message);
+      break;
+  }
+}
+
+async function start() {
+  micStream = await navigator.mediaDevices.getUserMedia({
+    audio: { channelCount: 1, sampleRate: 16000, echoCancellation: true, noiseSuppression: true },
+  });
+  audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+  audioCtx.resume(); playAt = 0;
+  $("log").innerHTML = '<div class="empty">Listening — say something in Tamil.</div>';
+  $("honorific").textContent = "not decided yet";
+
+  const proto = location.protocol === "https:" ? "wss" : "ws";
+  const token = new URLSearchParams(location.search).get("token");
+  ws = new WebSocket(`${proto}://${location.host}/ws/audio${token ? "?token=" + encodeURIComponent(token) : ""}`);
+  ws.binaryType = "arraybuffer";
+  ws.onopen = () => {
+    ws.send(JSON.stringify({ type: "call_started", audio_format: "pcm_s16le", sample_rate: 16000, channels: 1, language: "ta" }));
+    // What the browser actually applied, stored in the call log for diagnosis.
+    const track = micStream.getAudioTracks()[0], a = track.getSettings();
+    ws.send(JSON.stringify({ type: "mic_settings", settings: { label: track.label,
+      echoCancellation: a.echoCancellation, noiseSuppression: a.noiseSuppression,
+      autoGainControl: a.autoGainControl, sampleRate: a.sampleRate, channelCount: a.channelCount } }));
+    capture();
+    $("start").disabled = true; $("stop").disabled = false;
+    status("Listening…");
+  };
+  ws.onmessage = (ev) => typeof ev.data === "string" ? onEvent(JSON.parse(ev.data)) : playPcm(ev.data);
+  ws.onclose = () => stop();
+}
+
+function capture() {
+  micCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+  const src = micCtx.createMediaStreamSource(micStream);
+  micNode = micCtx.createScriptProcessor(4096, 1, 1);
+  micNode.onaudioprocess = (e) => {
+    if (!ws || ws.readyState !== 1) return;
+    const f = e.inputBuffer.getChannelData(0);
+    const pcm = new Int16Array(f.length);
+    let sq = 0;
+    for (let i = 0; i < f.length; i++) { const v = Math.max(-1, Math.min(1, f[i])); pcm[i] = v * 32767; sq += v * v; }
+    ws.send(pcm.buffer);
+    $("level").style.width = Math.min(100, Math.sqrt(sq / f.length) * 400) + "%";
+  };
+  // Muted, never routed to the speakers: that would feed the mic back into itself.
+  const mute = micCtx.createGain(); mute.gain.value = 0;
+  src.connect(micNode); micNode.connect(mute); mute.connect(micCtx.destination);
+}
+
+function stop() {
+  if (ws && ws.readyState === 1) { ws.send(JSON.stringify({ type: "call_ended" })); ws.close(); }
+  ws = null;
+  if (micStream) micStream.getTracks().forEach(t => t.stop());
+  if (micNode) micNode.disconnect();
+  if (micCtx) micCtx.close();
+  micStream = micNode = micCtx = null;
+  $("start").disabled = false; $("stop").disabled = true; $("level").style.width = "0";
+  status("Stopped. Press Start to test again.");
+}
+
+$("start").onclick = () => start().catch(e => status("Microphone blocked: " + e.message + " (open the page via localhost)"));
+$("stop").onclick = stop;
+</script>
+</body>
+</html>

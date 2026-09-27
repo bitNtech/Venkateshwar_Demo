@@ -1,0 +1,85 @@
+# ARUVI hospital voicebot — Ollama wrapper for the BASE (un-finetuned) model.
+#
+# num_ctx is set explicitly because Ollama's default is VRAM-derived (often
+# 2048-4096) and would silently truncate the system prompt before its language
+# rules — the exact bug that made the agent answer in English and invent a
+# caller mobile number.
+#
+# 6144, not 32768: backend/prompt_builder.py sends an assembled prompt of
+# ~2.5-3.8k tokens (emergency.escalate is the widest) instead of the 15k master
+# spec. 32768 allocates a KV cache far too large for a 4GB card (a trivial
+# generation measured 222s on CPU at that setting), and 6144 rather than 8192
+# buys 160 MiB of VRAM headroom for free - see the num_gpu note below.
+#
+# It does NOT hold a full call's history "with room to spare", which is what
+# this comment used to claim: measured, the widest playbook plus 24 messages of
+# the longest turns this server produces came to 7202 tokens. That is why
+# backend/conversation.py trims history against a token budget derived from
+# LLM_NUM_CTX, which must match the number below.
+#
+# Build:  ollama create aruvi-base -f Modelfile
+# Use:    LLM_MODEL=aruvi-base in .env
+FROM qwen3:4b-instruct-2507-q4_K_M
+
+PARAMETER num_ctx 6144
+PARAMETER temperature 0.3
+
+# FULL GPU OFFLOAD. This was forbidden for most of this project's life and the
+# reversal is a MEASUREMENT, not a change of mind - re-read before touching it.
+#
+# The old rule ("never add num_gpu 99") came from a real result: one turn took
+# 114 SECONDS, because the weights fit in 4GB but the weights PLUS the KV cache
+# did not, and Windows WDDM silently spills the difference to system RAM over
+# PCIe. What that measurement did not record is that ~1.2GB of the card was
+# being held by desktop apps at the time - WhatsApp, Phone Link, Widgets and
+# their WebView2 GPU processes.
+#
+# With those closed, measured on the REAL PromptBuilder prompt (3703 tokens),
+# temperature 0, same reply text in every row:
+#
+#     split            generation      prompt eval
+#     33%/67% CPU/GPU  12.9 tok/s      0.08s        <- num_ctx 8192, no num_gpu
+#     29%/71% CPU/GPU  14.7 tok/s      0.07s        <- num_ctx 5120, no num_gpu
+#     100% GPU         31.9 tok/s      0.03s        <- num_gpu 99
+#
+# 2.2x, and it is the single largest latency win this project has measured.
+#
+# THE PRECONDITION IS VRAM, AND IT IS NOT OPTIONAL. At num_ctx 6144 this leaves
+# 498 MiB free on a 4GB card. If something else takes the card - a game, a
+# second model, a pile of Electron apps - the 114s spill comes back and it is
+# silent. Check `nvidia-smi` before blaming the model. To revert, delete this
+# PARAMETER and rebuild; nothing else depends on it.
+#
+# num_ctx 6144 rather than 8192 buys 160 MiB of that headroom for free: at full
+# offload 6144 measured 31.3 tok/s against 8192's 31.9, inside the noise.
+#
+# ...AND IT IS NO LONGER SET HERE. Not a retraction of the 2.2x - that stands -
+# but of hard-coding it, because the precondition above is not the only thing
+# that can go wrong. Current llama.cpp wants ~1 GiB of free VRAM left over and
+# NORMALLY recovers from missing that target by offloading fewer layers. An
+# explicit num_gpu takes the recovery away, measured on this card with an
+# ordinary desktop running:
+#
+#     projected to use 2915 MiB vs 3344 MiB of free device memory
+#     cannot meet free memory target of 1024 MiB, reduce by 595 MiB
+#     failed to fit params: n_gpu_layers already set by user to 99, abort
+#
+# That is a 500 from Ollama on EVERY turn, not a slow turn. Left unset, the
+# same machine loads at a CPU/GPU split and keeps answering.
+#
+# So it is an .env knob now:  LLM_NUM_GPU=99  then rebuild. Take it on a
+# machine whose card is genuinely free - close the Electron apps, confirm
+# `ollama ps` says 100% GPU - and leave it blank on one that is shared.
+# backend/scripts/setup_model.py is what applies it.
+
+# The block that used to sit here said "NO num_gpu setting here, and that is
+# deliberate", directly underneath the line that sets it. It was the old rule,
+# left behind when the reversal above was measured, and read bottom-up it is an
+# instruction to delete the largest latency win this project has. Removed
+# rather than corrected - the reasoning it carried is above, including the 114s
+# measurement and the VRAM precondition that turned out to be the whole rule.
+#
+# One half of it was always right and is kept: tune this only against a
+# realistic prompt. A short one will lie (it measured 34.5 vs 16.6 tok/s on a
+# 13-token prompt while the real one took 114 seconds). Use
+# backend/scripts/bench_ctx.py, which assembles the real PromptBuilder output.

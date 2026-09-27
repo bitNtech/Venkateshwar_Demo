@@ -1,0 +1,155 @@
+flowchart TB
+    classDef ctl fill:#EEF2FF,stroke:#1B4DF0,color:#0B1220
+    classDef rt fill:#FFF4EC,stroke:#F26522,color:#0B1220
+    classDef store fill:#F5F7FB,stroke:#8A93A2,color:#0B1220
+    classDef ext fill:#FFFFFF,stroke:#B4BCC9,color:#0B1220,stroke-dasharray: 4 3
+
+    subgraph ACT["Actors"]
+        CALLER["Caller or customer<br/>PSTN · WhatsApp · web"]
+        CSTAFF["Client staff<br/>front desk, supervisor"]
+        BOPS["bitNtech ops and delivery team"]
+    end
+
+    subgraph UI["Surfaces"]
+        CONSOLE["Ops console<br/>all tenants, provisioning, margin"]
+        PORTAL["Client portal<br/>single tenant, calls and analytics"]
+        DESIGNER["Agent designer<br/>versions · sections · language variants"]
+    end
+
+    subgraph CP["Control plane"]
+        GW["API gateway<br/>auth, org scoping, rate limits"]
+        PROV["Provisioning and blueprint service"]
+        AGENTSVC["Agent config service<br/>draft · version · variant · diff"]
+        PUB["Snapshot publisher<br/>signs immutable config bundles"]
+        ENT["Entitlements service<br/>plan limits per org"]
+        METER["Metering and billing"]
+        INTREG["Integration registry<br/>connectors and tool schemas"]
+        QA["QA and regression runner"]
+        ANALYTICS["Analytics and reporting"]
+        AUDITSVC["Audit, consent and retention"]
+    end
+
+    subgraph CH["Channels and ingress"]
+        SIP["SIP trunk or telephony provider"]
+        WA["WhatsApp BSP"]
+        WEB["Web or in-app widget"]
+        DIALER["Outbound dialer<br/>campaigns, retries, quiet hours"]
+    end
+
+    subgraph RT["Voice runtime — data plane"]
+        ADMIT["Admission control<br/>routing plus limit check"]
+        MEDIA["Media gateway<br/>RTP and websocket audio"]
+        ORCH["Session orchestrator<br/>per-call state machine"]
+        CACHE["Snapshot cache<br/>version pinned at call start"]
+        VAD["VAD · turn-taking · barge-in"]
+        ASR["ASR<br/>code-mixed speech"]
+        DIALOG["Conversational intelligence<br/>intent · context · policy"]
+        TOOLS["Tool and agent executor"]
+        TTS["TTS<br/>mixed-language output"]
+        TRACE["Latency tracer<br/>per-stage timings"]
+    end
+
+    subgraph MODELS["Model layer"]
+        ROUTER["Provider router<br/>per stage, with fallback"]
+        CLOUDM["Cloud model providers"]
+        EDGEM["Local and edge models"]
+    end
+
+    subgraph DATA["Data and storage"]
+        PG[("Postgres<br/>control plane state")]
+        REDIS[("Redis<br/>session state and cache")]
+        OBJ[("Object store<br/>recordings and audio")]
+        VEC[("Vector store<br/>knowledge bases")]
+        WH[("Warehouse<br/>CDR, turns, metrics")]
+        VAULT[("Secrets vault<br/>per-tenant credentials")]
+    end
+
+    subgraph CSYS["Client systems"]
+        HIS["HIS or HMIS · CRM · LOS"]
+        CAL["Calendar and slot system"]
+        HOOK["Client webhooks"]
+        HUMAN["Human handoff<br/>SIP transfer · desk · ticket"]
+    end
+
+    subgraph DEP["Deployment profiles"]
+        CLOUD["Managed cloud<br/>shared multi-tenant"]
+        ONPREM["On-premise or edge node<br/>licence file, local snapshot and models"]
+    end
+
+    CALLER --> SIP
+    CALLER --> WA
+    CALLER --> WEB
+    DIALER --> SIP
+
+    SIP --> ADMIT
+    WA --> ADMIT
+    WEB --> ADMIT
+    ADMIT -- "limit check" --> ENT
+    ADMIT --> MEDIA
+    MEDIA --> ORCH
+    ORCH --> CACHE
+    CACHE -- "pull signed snapshot" --> PUB
+
+    ORCH --> VAD
+    VAD --> ASR
+    ASR --> DIALOG
+    DIALOG --> TOOLS
+    DIALOG --> TTS
+    TOOLS --> TTS
+    TTS --> MEDIA
+
+    ASR --> ROUTER
+    DIALOG --> ROUTER
+    TTS --> ROUTER
+    ROUTER --> CLOUDM
+    ROUTER --> EDGEM
+
+    DIALOG --> VEC
+    TOOLS --> INTREG
+    INTREG --> VAULT
+    TOOLS --> HIS
+    TOOLS --> CAL
+    TOOLS --> HOOK
+    ORCH --> HUMAN
+
+    ORCH --> REDIS
+    ORCH --> OBJ
+    ORCH --> TRACE
+    TRACE --> WH
+    ORCH -- "usage events" --> METER
+
+    BOPS --> CONSOLE
+    BOPS --> DESIGNER
+    CSTAFF --> PORTAL
+    CONSOLE --> GW
+    PORTAL --> GW
+    DESIGNER --> GW
+
+    GW --> PROV
+    GW --> AGENTSVC
+    GW --> ENT
+    GW --> METER
+    GW --> INTREG
+    GW --> QA
+    GW --> ANALYTICS
+    GW --> AUDITSVC
+
+    PROV --> AGENTSVC
+    AGENTSVC --> PUB
+    QA -- "replay scenarios" --> ORCH
+    ANALYTICS --> WH
+    METER --> PG
+    AGENTSVC --> PG
+    ENT --> PG
+    AUDITSVC --> PG
+    AUDITSVC --> OBJ
+
+    CLOUD -.-> RT
+    ONPREM -.-> RT
+    ONPREM -.-> EDGEM
+    ONPREM -.-> CACHE
+
+    class CONSOLE,PORTAL,DESIGNER,GW,PROV,AGENTSVC,PUB,ENT,METER,INTREG,QA,ANALYTICS,AUDITSVC ctl
+    class ADMIT,MEDIA,ORCH,CACHE,VAD,ASR,DIALOG,TOOLS,TTS,TRACE,ROUTER rt
+    class PG,REDIS,OBJ,VEC,WH,VAULT store
+    class HIS,CAL,HOOK,HUMAN,SIP,WA,WEB,CLOUDM ext

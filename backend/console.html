@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ARUVI Voice Console</title>
+<style>
+  :root{
+    --ink:#16191d; --muted:#6b7280; --faint:#9ca3af; --line:#e5e7eb;
+    --page:#f7f8f8; --paper:#fff; --green:#2f6f4f; --green-soft:#eef6f1;
+    --amber:#b4802f; --amber-soft:#fdf9f1; --red:#b04a45; --red-soft:#fdf2f1;
+    --blue:#3b6ea5; --blue-soft:#eef3f9;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--page);color:var(--ink);
+    font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+  .wrap{width:min(100%,1140px);margin:0 auto;padding:24px 20px 40px}
+  header{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  h1{margin:0;font-size:1.35rem;letter-spacing:-.02em}
+  h1 b{color:var(--green)}
+  .sub{color:var(--muted);font-size:.85rem}
+  .pills{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 18px;align-items:center}
+  .pill{display:flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid var(--line);
+    border-radius:99px;background:var(--paper);font-size:.76rem;color:var(--muted)}
+  .pill i{width:7px;height:7px;border-radius:50%;background:var(--faint)}
+  .pill.on i{background:#5a9972} .pill.off i{background:#c9736e}
+  .pill.on{color:#2f6f4f} .pill.off{color:#8c3a36}
+  .pill .val{font-variant-numeric:tabular-nums;color:var(--faint)}
+  .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:16px;align-items:start}
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px}
+  .card h2{margin:0 0 12px;font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);
+    display:flex;justify-content:space-between;align-items:center;gap:8px}
+  button{border:0;border-radius:9px;font:600 .87rem/1 inherit;cursor:pointer;padding:11px 15px;
+    transition:background .15s,opacity .15s}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  .primary{background:var(--green);color:#fff}
+  .danger{background:#fff;color:var(--red);border:1px solid #ebcfcc}
+  .ghost{background:#fff;color:#4b5563;border:1px solid var(--line)}
+  .tiny{padding:6px 10px;font-size:.75rem;font-weight:500}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
+  textarea{width:100%;min-height:78px;padding:11px;border:1px solid var(--line);border-radius:9px;
+    font:inherit;resize:vertical}
+  textarea:focus{outline:2px solid #cfe3d8;outline-offset:-1px}
+  .hint{margin:8px 0 0;color:var(--faint);font-size:.74rem}
+  .samples{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+  .samples button{text-align:left;padding:9px 11px;background:#fbfbfa;border:1px solid var(--line);
+    color:#374151;font-weight:500;font-size:.82rem;line-height:1.4}
+  .samples button:hover:not(:disabled){background:var(--green-soft);border-color:#cfe3d8}
+  .samples .lbl{display:block;color:var(--faint);font-size:.68rem;letter-spacing:.06em;
+    text-transform:uppercase;margin-bottom:2px}
+  #log{max-height:min(62vh,560px);overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+  .turn{padding:10px 12px;border-radius:10px;font-size:.88rem;line-height:1.55}
+  .turn.caller{background:#f4f5f6}
+  .turn.agent{background:var(--green-soft)}
+  .turn.sys{background:#fff;border:1px dashed var(--line);color:var(--muted);font-size:.78rem}
+  .turn.err{background:var(--red-soft);color:#8c3a36;font-size:.8rem}
+  .turn.interim{opacity:.55}
+  .turn .who{display:block;margin-bottom:3px;font-size:.68rem;letter-spacing:.07em;
+    text-transform:uppercase;color:var(--faint)}
+  .turn.agent .who{color:var(--green)}
+  .meta{margin-top:5px;color:var(--faint);font-size:.72rem;font-variant-numeric:tabular-nums}
+  .tool{margin-top:7px;padding:7px 9px;border-radius:8px;background:var(--blue-soft);
+    border:1px solid #d8e3ef;color:#2f5980;font-size:.75rem;line-height:1.45}
+  .tool b{font-weight:600}
+  .tool code{font:inherit;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.72rem;
+    word-break:break-word}
+  .empty{color:var(--faint);font-size:.85rem;text-align:center;padding:36px 0}
+  .speaking{display:none;align-items:center;gap:7px;margin-top:10px;color:var(--green);font-size:.8rem}
+  .speaking.on{display:flex}
+  .speaking i{width:7px;height:7px;border-radius:50%;background:currentColor;animation:b 1s infinite}
+  @keyframes b{50%{opacity:.25}}
+  .note{margin-top:14px;padding:11px 13px;border:1px solid #f0e2c8;background:var(--amber-soft);
+    border-radius:9px;color:#7a5b24;font-size:.76rem;line-height:1.5}
+  .note.hide{display:none}
+  #calls{display:flex;flex-direction:column;gap:5px;max-height:210px;overflow-y:auto}
+  .call{display:flex;justify-content:space-between;gap:10px;padding:7px 9px;border:1px solid var(--line);
+    border-radius:8px;background:#fbfbfa;font-size:.76rem;color:#4b5563;cursor:pointer;text-align:left}
+  .call:hover{background:var(--green-soft);border-color:#cfe3d8}
+  .call .id{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.7rem;color:var(--faint)}
+  .call .nums{font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--muted)}
+  @media(max-width:900px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1><b>ARUVI</b> voice console</h1>
+      <div class="sub">Aruvi Multispeciality Hospital &middot; Tamil&ndash;English call agent</div>
+    </div>
+    <div class="row">
+      <button class="primary" id="connect">Start call</button>
+      <button class="danger" id="hangup" disabled>End call</button>
+    </div>
+  </header>
+
+  <div class="pills" id="pills">
+    <span class="pill" id="p-ws"><i></i>socket</span>
+    <span class="pill" id="p-llm"><i></i>conversation</span>
+    <span class="pill" id="p-tts"><i></i>voice</span>
+    <span class="pill" id="p-asr"><i></i>speech-to-text</span>
+    <span class="pill" id="p-model"><i></i><span id="model-name">model…</span></span>
+    <span class="pill" id="p-lat"><i></i>reply <span class="val" id="lat">—</span></span>
+  </div>
+
+  <div class="grid">
+    <div>
+      <div class="card">
+        <h2>Speak as the caller</h2>
+        <textarea id="text" placeholder="Type a caller line in Tamil or English&#10;e.g. Cardiology-ல ஒரு appointment book பண்ணணும்." disabled></textarea>
+        <div class="row" style="margin-top:9px">
+          <button class="primary" id="send" disabled>Send turn</button>
+          <button class="ghost" id="mic" disabled>Use microphone</button>
+        </div>
+        <p class="hint" id="michint">Typed turns skip VAD/ASR and drive the same LLM &rarr; TTS path a spoken turn does.</p>
+        <div class="speaking" id="speaking"><i></i><span>agent speaking…</span></div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h2>Sample turns</h2>
+        <div class="samples" id="samples"></div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h2>Call log <button class="ghost tiny" id="refresh-calls">Refresh</button></h2>
+        <div id="calls"><div class="empty" style="padding:14px 0">No calls recorded yet.</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Transcript</h2>
+      <div id="log"><div class="empty">Start a call to begin.</div></div>
+      <div class="note hide" id="tts-note"></div>
+      <div class="note" id="privacy">
+        Voice uses Microsoft&rsquo;s neural Tamil voice, which means each reply&rsquo;s
+        <em>text</em> leaves this machine to be synthesised. Fine for the fictional Aruvi
+        test data; not for real patient speech. Swap in a self-hosted engine before that.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Sample turns are lifted from the golden PDF flows so a tester can exercise
+// several intents (and the emergency override) without composing Tamil by hand.
+const SAMPLES = [
+  ["Booking",   "Cardiology-ல ஒரு appointment book பண்ணணும்."],
+  ["Identify",  "பேஷண்ட் நான் தான். என் பேரு முருகேசன், வயசு 58."],
+  ["Number",    "98407 21534."],
+  ["Refill",    "என் அப்பாவுக்கு tablets தீர்ந்துடுச்சு. Refill வேணும்."],
+  ["Report",    "நேத்து test பண்ணேன். Report வந்துடுச்சா?"],
+  ["Billing",   "Discharge bill-ல ஒரு charge ரெண்டு தடவை போட்டு இருக்கீங்க."],
+  ["Info",      "Visiting hours என்ன?"],
+  ["Emergency", "சார், என் அப்பாவுக்கு நெஞ்சு வலி. மூச்சு வாங்குது!"],
+];
+
+const $ = (id) => document.getElementById(id);
+const logEl = $("log");
+let ws = null, audioCtx = null, playAt = 0, sampleRate = 24000;
+// Every buffer source scheduled but not yet finished. Needed for barge-in:
+// resetting the playback clock alone does NOT silence clauses whose start()
+// time is already in the future — they are handed to the audio device the
+// moment they are scheduled, so the agent kept talking over the caller.
+let queuedSources = [];
+// Filler audio (backend/filler.py): the next binary frame after agent_filler.
+let fillerNext = false, fillerSources = [];
+let micStream = null, micNode = null, micCtx = null, micOn = false;
+// The bubble currently being grown in place, per speaker. Partial transcripts
+// and agent clauses both append to an existing bubble rather than adding a new
+// one per event, which is what makes this read as a transcript and not a log.
+let callerInterim = null, agentTurn = null;
+// Wall-clock of the caller's last turn, so every agent reply can report how
+// long it took to say its first word - the number that matters most on CPU.
+let turnSentAt = 0, firstClauseAt = 0;
+
+function pill(id, on) {
+  const el = $(id);
+  el.classList.toggle("on", on === true);
+  el.classList.toggle("off", on === false);
+}
+
+function add(kind, who, text, meta) {
+  if (logEl.querySelector(".empty")) logEl.innerHTML = "";
+  const d = document.createElement("div");
+  d.className = "turn " + kind;
+  if (who) { const s = document.createElement("span"); s.className = "who"; s.textContent = who; d.appendChild(s); }
+  const body = document.createElement("span");
+  body.textContent = text;
+  d.appendChild(body);
+  d._body = body;
+  if (meta) setMeta(d, meta);
+  logEl.appendChild(d);
+  logEl.scrollTop = logEl.scrollHeight;
+  return d;
+}
+
+function setMeta(el, text) {
+  let m = el.querySelector(".meta");
+  if (!m) { m = document.createElement("div"); m.className = "meta"; el.appendChild(m); }
+  m.textContent = text;
+}
+
+// Agent audio arrives as raw int16 PCM frames at the rate announced in
+// agent_speaking_start. Each frame is scheduled after the previous one so
+// clauses play back-to-back instead of overlapping.
+const REBUFFER_S = 0.1;
+function playPcm(buf) {
+  if (!audioCtx) return;
+  const pcm = new Int16Array(buf);
+  if (!pcm.length) return;
+  const f32 = new Float32Array(pcm.length);
+  for (let i = 0; i < pcm.length; i++) f32[i] = pcm[i] / 32768;
+  const ab = audioCtx.createBuffer(1, f32.length, sampleRate);
+  ab.copyToChannel(f32, 0);
+  const src = audioCtx.createBufferSource();
+  src.buffer = ab;
+  if (fillerNext) {
+    // The frame right after agent_filler is the filler. Its own gain node is
+    // what lets filler_stop fade exactly it, and nothing the reply sends.
+    const gain = audioCtx.createGain();
+    src.connect(gain);
+    gain.connect(audioCtx.destination);
+    fillerSources.push({ src, gain });
+    fillerNext = false;
+  } else {
+    src.connect(audioCtx.destination);
+  }
+  const now = audioCtx.currentTime;
+  // Ran dry (or first audio): start a little ahead. A streaming engine
+  // (Fish) delivers at about realtime in small chunks, so starting each
+  // chunk flush against "now" turns every late one into a click.
+  if (playAt < now) playAt = now + REBUFFER_S;
+  src.start(playAt);
+  playAt += ab.duration;
+  queuedSources.push(src);
+  src.onended = () => { queuedSources = queuedSources.filter(s => s !== src); };
+}
+
+// The real reply is ready: cut the filler still playing (backend/filler.py).
+// A 30 ms fade, because a hard stop mid-syllable clicks.
+function stopFiller() {
+  if (!audioCtx) return;
+  const now = audioCtx.currentTime;
+  for (const { src, gain } of fillerSources) {
+    gain.gain.setValueAtTime(gain.gain.value, now);
+    gain.gain.linearRampToValueAtTime(0, now + 0.03);
+    try { src.stop(now + 0.03); } catch (e) { /* already ended */ }
+  }
+  fillerSources = [];
+  playAt = Math.min(playAt, now + 0.03);
+}
+
+function stopPlayback() {
+  // Barge-in: actually stop every scheduled clause. Resetting playAt only
+  // changes where the NEXT clause lands; anything already scheduled plays
+  // regardless, which is the difference between the agent going quiet and the
+  // agent talking over the caller for another few seconds.
+  for (const src of queuedSources) { try { src.stop(); } catch (e) { /* already ended */ } }
+  queuedSources = [];
+  fillerSources = []; fillerNext = false;
+  if (audioCtx) playAt = audioCtx.currentTime;
+}
+
+function setLive(live) {
+  $("connect").disabled = live;
+  $("hangup").disabled = !live;
+  $("text").disabled = !live;
+  $("send").disabled = !live;
+  document.querySelectorAll("#samples button").forEach(b => b.disabled = !live);
+}
+
+async function loadHealth() {
+  try {
+    const r = await fetch("/api/health");
+    const h = await r.json();
+    pill("p-llm", h.conversation_ready && h.llm_ready);
+    pill("p-tts", h.tts_ready);
+    pill("p-asr", h.asr_ready);
+    $("model-name").textContent = h.llm_model || "model?";
+    pill("p-model", h.llm_ready);
+  } catch (e) { /* server not up yet; the ready event will fill these in */ }
+}
+
+async function loadCalls() {
+  try {
+    const r = await fetch("/api/calls?limit=25");
+    const { calls } = await r.json();
+    const box = $("calls");
+    box.innerHTML = "";
+    if (!calls.length) {
+      box.innerHTML = '<div class="empty" style="padding:14px 0">No calls recorded yet.</div>';
+      return;
+    }
+    for (const c of calls) {
+      const b = document.createElement("button");
+      b.className = "call";
+      const when = new Date(c.started_at * 1000).toLocaleTimeString();
+      const dur = c.duration_seconds == null ? "live" : c.duration_seconds.toFixed(1) + "s";
+      b.innerHTML = `<span><span class="id">${c.connection_id.slice(0, 8)}</span> · ${when}</span>`;
+      const nums = document.createElement("span");
+      nums.className = "nums";
+      nums.textContent = `${c.caller_turns} turns · ${c.tool_calls} tools · ${dur}`;
+      b.appendChild(nums);
+      b.onclick = () => showCall(c.connection_id);
+      box.appendChild(b);
+    }
+  } catch (e) { /* leave whatever is on screen */ }
+}
+
+async function showCall(id) {
+  const r = await fetch(`/api/calls/${id}`);
+  const { events } = await r.json();
+  logEl.innerHTML = "";
+  add("sys", null, `replaying stored call ${id.slice(0, 8)} — ${events.length} events`);
+  for (const e of events) {
+    if (e.type === "transcript" && e.text) add("caller", "Caller (spoken)", e.text);
+    else if (e.type === "agent_clause") add("agent", "Agent", e.text);
+    else if (e.type === "agent_tool_call") addTool(null, e);
+    else if (e.type === "call_control") add("sys", null, `call control: ${e.action} ${e.detail || ""}`);
+  }
+}
+
+function addTool(container, e) {
+  if (logEl.querySelector(".empty")) logEl.innerHTML = "";
+  const d = document.createElement("div");
+  d.className = "tool";
+  const args = JSON.stringify(e.arguments || {});
+  const res = JSON.stringify(e.result || {});
+  d.innerHTML = `<b></b> <code></code><br><code></code>`;
+  d.querySelector("b").textContent = e.name;
+  const codes = d.querySelectorAll("code");
+  codes[0].textContent = args.length > 160 ? args.slice(0, 160) + "…" : args;
+  codes[1].textContent = "→ " + (res.length > 200 ? res.slice(0, 200) + "…" : res);
+  (container || logEl).appendChild(d);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function connect() {
+  audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+  audioCtx.resume();
+  playAt = 0;
+  callerInterim = agentTurn = null;
+
+  const proto = location.protocol === "https:" ? "wss" : "ws";
+  ws = new WebSocket(`${proto}://${location.host}/ws/audio`);
+  ws.binaryType = "arraybuffer";
+
+  ws.onopen = () => {
+    pill("p-ws", true);
+    // All four fields are required by main.py's _validate_start_event; the
+    // mic capture below is configured to match this exact format.
+    ws.send(JSON.stringify({
+      type: "call_started", audio_format: "pcm_s16le",
+      sample_rate: 16000, channels: 1, language: "ta",
+    }));
+    setLive(true);
+  };
+
+  ws.onmessage = (ev) => {
+    if (typeof ev.data !== "string") { playPcm(ev.data); return; }
+    const m = JSON.parse(ev.data);
+    switch (m.type) {
+      case "ready":
+        pill("p-llm", m.conversation_ready && m.llm_ready);
+        pill("p-tts", m.tts_ready);
+        pill("p-asr", m.asr_ready);
+        if (!m.tts_ready) {
+          $("tts-note").textContent =
+            "Voice (TTS) is not mounted, so any reply is text-only. Listening and transcripts work.";
+          $("tts-note").classList.remove("hide");
+          $("privacy").classList.add("hide");
+        }
+        if (!m.asr_ready) $("michint").textContent =
+          "Speech-to-text is not loaded, so the microphone is unavailable. Typed turns work and drive the same LLM → TTS path.";
+        $("mic").disabled = !m.asr_ready;
+        break;
+
+      case "vad_start":
+        // The caller started talking: if the agent was mid-reply the server is
+        // cancelling it, so stop the audio already queued here too.
+        stopPlayback();
+        break;
+
+      case "partial_transcript":
+        if (!m.text) break;
+        if (!callerInterim) callerInterim = add("caller interim", "Caller (speaking…)", m.text);
+        else callerInterim._body.textContent = m.text;
+        logEl.scrollTop = logEl.scrollHeight;
+        break;
+
+      case "transcript":
+        if (callerInterim) { callerInterim.remove(); callerInterim = null; }
+        if (m.text) {
+          turnSentAt = performance.now(); firstClauseAt = 0;
+          add("caller", "Caller (spoken)", m.text, `${m.duration_ms} ms audio · ${m.endpoint_reason}`);
+        }
+        break;
+
+      case "agent_speaking_start":
+        if (m.sample_rate) sampleRate = m.sample_rate;
+        $("speaking").classList.add("on");
+        agentTurn = null;
+        break;
+
+      case "agent_clause":
+        if (!firstClauseAt && turnSentAt) {
+          firstClauseAt = performance.now();
+          $("lat").textContent = ((firstClauseAt - turnSentAt) / 1000).toFixed(1) + "s";
+        }
+        if (!agentTurn) agentTurn = add("agent", "Agent", m.text);
+        else agentTurn._body.textContent += " " + m.text;
+        logEl.scrollTop = logEl.scrollHeight;
+        break;
+
+      case "agent_tool_call":
+        addTool(agentTurn, m);
+        break;
+
+      case "agent_speaking_end":
+        $("speaking").classList.remove("on");
+        if (agentTurn && turnSentAt) {
+          const total = ((performance.now() - turnSentAt) / 1000).toFixed(1);
+          const first = ((firstClauseAt - turnSentAt) / 1000).toFixed(1);
+          setMeta(agentTurn, `first clause ${first}s · turn ${total}s`);
+        }
+        agentTurn = null;
+        break;
+
+      case "agent_filler":
+        fillerNext = true;
+        break;
+
+      case "filler_stop":
+        stopFiller();
+        break;
+
+      case "agent_interrupted":
+        $("speaking").classList.remove("on");
+        stopPlayback();
+        if (agentTurn) agentTurn._body.textContent += " …";
+        agentTurn = null;
+        add("sys", null, "agent interrupted by caller");
+        break;
+
+      case "grounding_warning":
+        // The single highest-consequence failure mode: an ID the agent stated
+        // that no tool ever returned. Shown against the turn it came from.
+        add("err", "ungrounded", 
+          "The agent stated identifier(s) no tool returned: " + m.identifiers.join(", ") +
+          " — this is a fabrication, not a lookup.");
+        break;
+
+      case "action_claim_warning":
+        // Worse than a wrong ID: the agent told the caller something was DONE
+        // and nothing did it. An ambulance that was never dispatched is the
+        // case this exists for.
+        add("err", "not done",
+          "The agent " + m.claims.join(", ") +
+          " — but no tool call did it. Nothing actually happened.");
+        break;
+
+      case "call_control":
+        add("sys", null, m.action === "hang_up"
+          ? `agent ended the call${m.detail ? " — " + m.detail : ""}`
+          : `agent transferred the call${m.detail ? " → " + m.detail : ""}`);
+        break;
+
+      case "agent_audio_error":
+        // Text for this clause already arrived; only its audio was lost.
+        add("sys", null, "voice unavailable for one clause (text still shown) — " + (m.message || ""));
+        break;
+
+      case "agent_unavailable":
+        // The LLM is a separate service and is not mounted: the transcript
+        // above is the whole turn. A notice, not an error.
+        add("sys", null, m.message || "no reply: the LLM is not mounted");
+        break;
+
+      case "agent_error":
+        // Already shown once as the banner under the pills; repeating it on
+        // every turn buries the transcript.
+        if ((m.message || "").startsWith("TTS is unavailable")) break;
+      case "asr_error":
+      case "pipeline_error":
+      case "protocol_error":
+        add("err", m.type.replace("_", " "), m.message || ""); break;
+    }
+  };
+
+  ws.onclose = () => {
+    pill("p-ws", false); $("speaking").classList.remove("on");
+    setLive(false); stopMic(); add("sys", null, "call ended");
+    loadCalls();
+  };
+  ws.onerror = () => add("err", "socket", "connection failed — is the backend running?");
+}
+
+function send(text) {
+  if (!ws || ws.readyState !== 1) return;
+  const t = text.trim();
+  if (!t) return;
+  turnSentAt = performance.now(); firstClauseAt = 0;
+  add("caller", "Caller", t);
+  ws.send(JSON.stringify({ type: "user_text", text: t }));
+  $("text").value = "";
+}
+
+async function startMic() {
+  micStream = await navigator.mediaDevices.getUserMedia({
+    audio: { channelCount: 1, sampleRate: 16000, echoCancellation: true, noiseSuppression: true },
+  });
+  // What the browser actually applied - not always what was asked for, and
+  // autoGainControl is not asked for at all here (Chrome defaults it on).
+  // Stored with the call's vad_diagnostics (backend/settings.py).
+  const micTrack = micStream.getAudioTracks()[0];
+  const applied = micTrack.getSettings();
+  if (ws && ws.readyState === 1) ws.send(JSON.stringify({ type: "mic_settings", settings: {
+    label: micTrack.label, echoCancellation: applied.echoCancellation,
+    noiseSuppression: applied.noiseSuppression, autoGainControl: applied.autoGainControl,
+    sampleRate: applied.sampleRate, channelCount: applied.channelCount,
+  } }));
+  micCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+  const src = micCtx.createMediaStreamSource(micStream);
+  // ScriptProcessor is deprecated but needs no separate worklet file, which
+  // keeps this console a single self-contained page.
+  micNode = micCtx.createScriptProcessor(4096, 1, 1);
+  micNode.onaudioprocess = (e) => {
+    if (!ws || ws.readyState !== 1) return;
+    const f = e.inputBuffer.getChannelData(0);
+    const pcm = new Int16Array(f.length);
+    for (let i = 0; i < f.length; i++) pcm[i] = Math.max(-1, Math.min(1, f[i])) * 32767;
+    ws.send(pcm.buffer);
+  };
+  // Routed to a muted gain node, not to the speakers: connecting the capture
+  // node straight to destination echoes the caller's own mic back at them and,
+  // worse, feeds the agent's voice into the next VAD segment.
+  const mute = micCtx.createGain();
+  mute.gain.value = 0;
+  src.connect(micNode); micNode.connect(mute); mute.connect(micCtx.destination);
+  micOn = true; $("mic").textContent = "Stop microphone";
+  add("sys", null, "microphone live — speak Tamil");
+}
+
+function stopMic() {
+  if (micStream) micStream.getTracks().forEach(t => t.stop());
+  if (micNode) micNode.disconnect();
+  if (micCtx) micCtx.close();
+  micStream = micNode = micCtx = null; micOn = false;
+  $("mic").textContent = "Use microphone";
+}
+
+SAMPLES.forEach(([label, text]) => {
+  const b = document.createElement("button");
+  b.disabled = true;
+  b.innerHTML = `<span class="lbl"></span>`;
+  b.querySelector(".lbl").textContent = label;
+  b.appendChild(document.createTextNode(text));
+  b.onclick = () => send(text);
+  $("samples").appendChild(b);
+});
+
+$("connect").onclick = connect;
+$("hangup").onclick = () => {
+  if (ws && ws.readyState === 1) ws.send(JSON.stringify({ type: "call_ended" }));
+  if (ws) ws.close();
+};
+$("send").onclick = () => send($("text").value);
+$("text").addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send($("text").value); }
+});
+$("mic").onclick = () => micOn ? stopMic() : startMic().catch(e => add("err", "microphone", String(e)));
+$("refresh-calls").onclick = loadCalls;
+setLive(false);
+loadHealth();
+loadCalls();
+</script>
+</body>
+</html>

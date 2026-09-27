@@ -1,0 +1,41 @@
+# ===========================================================================
+#  DO NOT INSTALL THIS FILE INTO THE BACKEND'S VENV. IT WILL BREAK ASR.
+#
+#  ../requirements.txt pins huggingface_hub==0.23.2 and transformers<5 because
+#  backend/asr.py loads IndicConformer through the AI4Bharat NeMo fork, which
+#  calls hub APIs that were removed after 0.23. Everything below needs a hub
+#  an order of magnitude newer, and pip will happily upgrade it in place and
+#  leave the backend importing a NeMo that can no longer fetch its tokenizer.
+#  There is no shared-venv configuration that satisfies both.
+#
+#  Always:  python -m venv .venv-finetune && . .venv-finetune/bin/activate
+# ===========================================================================
+
+# Install torch FIRST and from the CUDA index, or pip resolves the CPU wheel
+# and every 4-bit path below silently falls back to CPU:
+#   pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cu124
+torch==2.6.0
+
+transformers==4.55.2
+peft==0.17.0
+accelerate==1.10.0
+# NF4 + paged_adamw_8bit. The whole 4 GB plan rests on this package finding a
+# working CUDA runtime; `python -m bitsandbytes` prints its self-check.
+bitsandbytes==0.47.0
+huggingface_hub==0.34.4
+safetensors==0.6.2
+sentencepiece==0.2.0
+
+# extract_flows.py. pdfplumber specifically, not pypdf: pypdf drops the Tamil
+# conjunct glyphs the subset font leaves unmapped (see extract_flows.py).
+pdfplumber==0.11.10
+
+# build_dataset.py imports backend.conversation, which imports backend.settings,
+# which calls load_dotenv() at module scope.
+python-dotenv==1.1.1
+
+# Optional but strongly recommended on 4 GB: unsloth's chunked cross-entropy
+# keeps the 151k-vocabulary logits off the card, which is the single largest
+# allocation in a full-sequence backward pass. It re-pins transformers/peft to
+# its own tested set, so install it LAST and let it win:
+#   pip install "unsloth==2025.8.9" "unsloth_zoo==2025.8.8"

@@ -1,0 +1,87 @@
+FLOW 07
+Lab / Diagnostic Test Booking
+
+ INTENT lab.book
+
+ SCENARIO Home sample collection for a fasting profile plus an ultrasound slot at the hospital.
+
+ ENTITIES test_names, fasting_instruction, home_collection_slot, address, ultrasound_slot, package_price, lab_order_id
+
+ OUTCOME Home collection Tue 6:30–7:30 AM; USG abdomen Tue 11:00 AM. Order LAB-66031.
+
+ AGENT வண க , அ வ டய னா . நா( ஜா(சA ேப.ேற(.
+ Vanakkam, Aruvi Diagnostics. Naan Jansi pesaren.
+
+ CALLER ேமட , doctor ெகாMச test எcதE ெகாL*தE கா . Book ப6ண: .
+ Madam, doctor konjam test ezhuthi koduthirukkaaru. Book pannanum.
+
+ AGENT க6 5பா சா<. எ(ென(ன test-: ப J. ெசா =1களா?
+ Kandippa sir. Ennenna test-nu padichu sollungalaa?
+
+ CALLER CBC, lipid proﬁle, liver function test, அ5Pற ultrasound abdomen-: எcதE இ 3.
+ CBC, lipid profile, liver function test, appuram ultrasound abdomen-nu ezhuthi irukku.
+
+ AGENT சரி சா<. ?த OU blood test, அைத k$L ேக வNH sample எL*H கலா . Ultrasound ம$L hospital-ல
+ தா( ப6ண: . ெர6ைடQ ஒேர நா\ல ெவJ. கலாமா?
+ Sari sir. Muthal moonum blood test, athai veettukke vanthu sample eduthukkalaam. Ultrasound mattum hospital-la thaan pannanum.
+ Rendaiyum ore naal-la vechukkalaamaa?
+
+ CALLER ஆமா , ஒேர நா\ல ? Jசா ந லH.
+ Aamaam, ore naal-la mudichaa nallathu.
+
+ AGENT ந ல idea சா<. Lipid proﬁle- 3 10 to 12 hours fasting ேவU . Ultrasound abdomen- 3 காைலல fasting-ஆ
+ வ<றH தா( ந லH — பட clear-ஆ வ . அதனால காைலல k$ல blood எL*H$L, அ5Pற hospital வNH scan
+ ப6ணிடலா .
+ Nalla idea sir. Lipid profile-ku 10 to 12 hours fasting venum. Ultrasound abdomen-kkum kaalaila fasting-aa varrathu thaan nallathu —
+ padam clear-aa varum. Athanaala kaalaila veettla blood eduthuttu, appuram hospital vanthu scan pannidalaam.
+
+ CALLER சரி ேமட . எ5ேபா வ வா1க?
+ Sari madam. Eppo varuvaanga?
+
+ AGENT ெசmவாn கEழைம காைல 6:30 to 7:30 slot கா#யா இ 3. Technician உ1க k$L 3 வNHLவா . Ultrasound-
+ 3 அேத நா\ காைல 11 மணி slot ெவJ. கலாமா?
+ Sevvaaykkizhamai kaalai 6:30 to 7:30 slot kaaliyaa irukku. Technician unga veettukku vanthuduvaaru. Ultrasound-ku athe naal kaalai 11
+ mani slot vechukkalaamaa?
+
+ CALLER 11 மணி(னா ெரா ப ேநர ப$ னி இ கUேம?
+ 11 mani-nnaa romba neram pattini irukkanume?
+
+ AGENT Blood எL*த உடேன g1க சா5ப டலா சா<. Scan- 3 ?(னா ெர6L மணி ேநர ம$L சா5ப டாம இ Nதா
+ ேபாH . Scan- 3 ஒ மணி ேநர ?(னா ஒ #$ட< த6ணி 3 J., சAjg< கழி காம வரU — அH ? கEய .
+ Blood eduttha udane neenga saappidalaam sir. Scan-ku munnadi rendu mani neram mattum saappidaama irunthaa pothum. Scan-ku oru
+ mani neram munnadi oru litre thanni kudichu, sirunīr kazhikkaama varanum — athu mukkiyam.
+
+ CALLER ஓ சரி, PரிQH. Address ேவUமா?
+ O sari, puriyuthu. Address venumaa?
+
+ AGENT System-ல Anna Nagar West, 5th Main Road-: இ 3. அேத தானா?
+ System-la Anna Nagar West, 5th Main Road-nu irukku. Athe thaanaa?
+
+ CALLER ஆமா . Flat number 3B, Sri Towers.
+ Aamaam. Flat number 3B, Sri Towers.
+
+ AGENT Update ப6ணி$ேட(. ெமா*த charge — OU blood test- 3 ₹1,450, home collection free. Ultrasound ₹1,800.
+ ெமா*த ₹3,250.
+ Update pannitten. Motha charge — moonu blood test-ku ₹1,450, home collection free. Ultrasound ₹1,800. Motham ₹3,250.
+
+ CALLER Insurance-ல claim ப6ண ? Qமா?
+ Insurance-la claim panna mudiyumaa?
+
+ AGENT OP diagnostics- 3 ெப பாலான policy-ல cashless இ காH சா<. g1க க$ $L, bill-ஐ ெவJ. reimbursement
+ ேபாடலா . Bill-ஐ doctor prescription-ஓட ேச<*H ெகாL*Hடேறா .
+ OP diagnostics-ku perumbaalaana policy-la cashless irukkaathu sir. Neenga kattittu, bill-ai vechu reimbursement podalaam. Bill-ai doctor
+ prescription-oda sertthu koduthudurom.
+
+CALLER சரி ேமட . Report எ5ேபா வ ?
+ Sari madam. Report eppo varum?
+
+ AGENT Blood reports அ(ைன 3 மாைல 3\ள, ultrasound report ெர6L மணி ேநர*Hல. ெர6L SMS link-ல வ ,
+ app-ல-Q பா கலா . Order number LAB-66031.
+ Blood reports annaikku maalaikkulla, ultrasound report rendu mani nerathula. Rendum SMS link-la varum, app-la-yum paakkalaam. Order
+ number LAB-66031.
+
+ CALLER ெரா ப ந(றA ேமட .
+ Romba nandri madam.
+
+ AGENT ந(றA சா<. ெசmவாn காைல technician call ப6ணி$L தா( வ வா . வண க .
+ Nandri sir. Sevvaay kaalai technician call pannittu thaan varuvaaru. Vanakkam.

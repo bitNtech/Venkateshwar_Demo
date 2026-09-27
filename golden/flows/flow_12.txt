@@ -1,0 +1,84 @@
+FLOW 12
+Medical Records Request
+
+ INTENT records.request
+
+ SCENARIO Legal heir requests records of a deceased parent; agent explains authorisation requirements without being cold.
+
+ ENTITIES mrn, record_type, date_range, requestor_relationship, id_proof, authorisation_docs, fee, turnaround
+
+ OUTCOME Request REC-1187 logged; records released after death certificate + heirship proof; 7 working days, ₹300.
+
+ AGENT வண க , அ வ ஹா ப ட medical records department. நா( ஹரிணி ேப.ேற(.
+ Vanakkam, Aruvi Hospital medical records department. Naan Harini pesaren.
+
+ CALLER ேமட , எ( அ5பாேவாட records ேவU . ேபான வ ஷ இ1க admit ஆகE இ Nதா .
+ Madam, en appaavoda records venum. Pona varusham inga admit aagi irunthaaru.
+
+ AGENT க6 5பா சா<. Patient ேப , MRN ெதரிQமா?
+ Kandippa sir. Patient peru, MRN theriyumaa?
+
+ CALLER ேப Subramaniam. MRN ெதரியல, ஆனா mobile number 94441 20873.
+ Peru Subramaniam. MRN theriyala, aanaa mobile number 94441 20873.
+
+ AGENT பா கேற(... Subramaniam சா<, 74 வய., மா<J மாச admit, ARV-088014. இH தானா?
+ Paakkaren... Subramaniam sir, 74 vayasu, March maasam admit, ARV-088014. Ithu thaanaa?
+
+ CALLER ஆமா அH தா(. அவ ேம மாச காலமாய $டா .
+ Aamaam athu thaan. Avaru May maasam kaalamaayittaaru.
+
+ AGENT ெரா ப வ *தமா இ 3 சா<. எ(ேனாட ஆtNத அ:தாப1க\.
+ Romba varutthamaa irukku sir. Ennoda aazhntha anuthaabangal.
+
+ CALLER ந(றA ேமட . Insurance claim- காக தா( records ேக$3ேற(.
+ Nandri madam. Insurance claim-kkaaga thaan records ketkuren.
+
+ AGENT PரிQH சா<. எ(ென(ன ேவU — ?c case sheet-ஆ, இ ல discharge summary, lab reports ம$Lமா?
+ Puriyuthu sir. Ennenna venum — muzhu case sheet-aa, illa discharge summary, lab reports mattumaa?
+
+ CALLER Insurance company ?c case sheet ேக$3றா1க. Bills- ேவU .
+ Insurance company muzhu case sheet ketkuraanga. Bills-um venum.
+
+ AGENT சரி சா<. Patient இ லாத ேநர*Hல records வா1கறH 3 ெகாMச extra document ேவU — ச$ட5ப . OU
+ வ ஷய : death certiﬁcate copy, உ1க ID proof, அ5Pற g1க legal heir-: கா$ட ஏதாவH ஒ document — ration card,
+ legal heir certiﬁcate, இ ல family card.
+ Sari sir. Patient illaatha nerathula records vaangarathukku konjam extra document venum — sattappadi. Moonu vishayam: death
+ certificate copy, unga ID proof, appuram neenga legal heir-nu kaatta ethaavathu oru document — ration card, legal heir certificate, illa
+ family card.
+
+ CALLER Legal heir certiﬁcate வா1கல ேமட . Ration card-ல எ1க ெர6L ேப< ேப இ 3.
+ Legal heir certificate vaangala madam. Ration card-la enga rendu per perum irukku.
+
+ AGENT அH ேபாH சா<. Ration card-ல ெர6L ேப< ேப இ Nதா relationship establish ஆய L . Legal heir certiﬁcate
+ ேதைவ இ ல.
+ Athu pothum sir. Ration card-la rendu per perum irunthaa relationship establish aayidum. Legal heir certificate thevai illa.
+
+ CALLER ந லH. Charge ஏதாவH இ கா?
+ Nallathu. Charge ethaavathu irukkaa?
+
+ AGENT Case sheet copy- 3 ₹300 சா<. Digital copy ேவU னா அH 3 extra charge இ ல, ஆனா insurance- 3 ெபாHவா
+ attested hard copy தா( ேக$பா1க.
+ Case sheet copy-ku ₹300 sir. Digital copy venumnaa athukku extra charge illa, aanaa insurance-ku pothuva attested hard copy thaan
+ ketpaanga.
+
+ CALLER அ5ேபா ெர6L ேவU . எ*தைன நா\ ஆ3 ?
+ Appo rendum venum. Ethanai naal aagum?
+
+ AGENT ஏc working days சா<. பைழய records archive-ல இ 3 , அைத எL*H, verify ப6ணி, medical superintendent
+ sign ேபாடU . ெர ஆனH call ப6Uேவா .
+ Ezhu working days sir. Pazhaya records archive-la irukkum, athai eduthu, verify panni, medical superintendent sign podanum. Ready
+ aanathum call pannuvom.
+
+ CALLER Documents-ஐ எ5ப ெகாL கறH?
+ Documents-ai eppadi kodukkarathu?
+
+AGENT Block A ground ﬂoor, medical records counter-ல ேநர யா ெகாL கலா , இ ல scan ப6ணி
+ records@aruvihospital.in- 3 mail ப6ணலா . Mail ப6ணா subject-ல request number REC-1187-: ேபாL1க.
+ Block A ground floor, medical records counter-la neradiyaa kodukkalaam, illa scan panni records@aruvihospital.in-ku mail pannalaam. Mail
+ pannaa subject-la request number REC-1187-nu podunga.
+
+ CALLER சரி ேமட . ெரா ப ந(றA, ெபாjைமயா ெசா(b1க.
+ Sari madam. Romba nandri, porumaiyaa sonneenga.
+
+ AGENT ந(றA சா<. ஏதாவH சNேதக னா இேத number- 3 ]5ப L1க. வண க .
+ Nandri sir. Ethaavathu sandhegam-naa ithe number-ku koopidunga. Vanakkam.

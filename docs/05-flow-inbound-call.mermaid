@@ -1,0 +1,57 @@
+sequenceDiagram
+    autonumber
+    actor C as Caller
+    participant T as Telephony
+    participant AD as Admission control
+    participant EN as Entitlements
+    participant O as Session orchestrator
+    participant SC as Snapshot cache
+    participant P as VAD · ASR · TTS
+    participant D as Dialogue engine
+    participant X as Tool executor
+    participant B as Client system
+    participant H as Human agent
+    participant M as Metering and CDR
+
+    C->>T: dials the business number
+    T->>AD: inbound call event with number and caller id
+    AD->>AD: resolve org and routing rule to agent
+    AD->>EN: check concurrency and monthly minutes
+    alt limit reached
+        EN-->>AD: denied
+        AD-->>T: overflow to human or busy message
+    else admitted
+        EN-->>AD: allowed
+        AD->>O: create session
+        O->>SC: fetch pinned snapshot for agent version and locale
+        SC-->>O: signed config bundle
+        O->>P: open media stream
+        P-->>C: greeting in configured voice
+
+        loop each turn until resolved
+            C->>P: speaks in Tamil, English or a mix
+            P->>P: VAD marks end of speech
+            P->>D: transcript plus context
+            D->>D: intent, dialogue state, policy check
+            opt task requires an action
+                D->>X: tool call with arguments
+                X->>B: read or write with idempotency key
+                B-->>X: result
+                X-->>D: tool result
+            end
+            D->>P: response text
+            P-->>C: spoken reply
+            P->>M: per-stage latency for this turn
+        end
+
+        alt resolved by AICA
+            O->>M: outcome resolved
+        else needs a person
+            D->>O: handoff requested with summary
+            O->>H: SIP transfer or ticket plus summary
+            O->>M: outcome handoff
+        end
+
+        O->>M: CDR, transcript, recording reference, usage records
+        M->>B: webhook call.completed
+    end

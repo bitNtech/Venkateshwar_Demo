@@ -1,0 +1,87 @@
+fastapi>=0.110,<1.0
+uvicorn[standard]>=0.27,<1.0
+# setuptools>=81 dropped pkg_resources, which NeMo's pytorch_lightning import
+# chain still needs (backend/asr.py -> nemo.collections.asr -> lightning_fabric).
+setuptools<81
+numpy>=1.26,<2
+python-dotenv>=1.0
+ten-vad>=1.0.6
+# torchaudio's last release is 2.11.0 (it stopped tracking torch's version
+# bumps after that), so an unbounded torch>=2.2 resolves to whatever is
+# newest (e.g. 2.14.0) - a torch/torchaudio pair from different ABI
+# generations, which fails at import with "Could not load this library:
+# .../_torchaudio.abi3.so". Pin both to the same 2.11.0 release.
+torch==2.11.0
+torchaudio==2.11.0
+# torchvision isn't a direct dependency, but pytorch-lightning's import chain
+# (via torchmetrics) pulls it in unpinned, which resolves to the newest
+# release (built against torch==2.14.0) and fails at import with
+# "RuntimeError: operator torchvision::nms does not exist" - the compiled ops
+# don't match torch 2.11.0's ABI. Pin the torchvision release built for it.
+torchvision==0.26.0
+transformers>=4.40,<5
+onnxruntime>=1.17
+soundfile>=0.12
+huggingface_hub==0.23.2
+openai>=1.0,<2
+cryptography>=42.0
+
+# TTS_ENGINE=edge (backend/settings.py's default): Microsoft neural voices, no
+# API key, CPU-only. soundfile is already pinned above and does the MP3 decode -
+# that needs libsndfile >= 1.1, which soundfile >= 0.12 bundles; EdgeTts.load()
+# checks and fails loudly at startup rather than mid-call if it is older.
+edge-tts>=7.0
+# Client for the Fish TTS server (TTS_ENGINE=fish): its WebSocket speaks msgpack.
+websockets>=12
+ormsgpack>=1.4
+
+# backend/telephony.py's u-law<->PCM transcoding: stdlib audioop covers this
+# today (Python 3.10/3.11/3.12, per Sec5's pin); this backport is the official
+# drop-in replacement once audioop is removed from the stdlib in 3.13+.
+audioop-lts; python_version >= "3.13"
+
+# Testing only - conversation.py/llm.py tests are async (streaming LLM
+# client), unlike the existing sync vad/asr tests.
+pytest>=8.0
+pytest-asyncio>=0.24
+
+# ASR also needs the AI4Bharat NeMo fork, which is NOT on PyPI - stock
+# nemo-toolkit cannot load IndicConformer's multilingual tokenizer:
+#   pip install -e ./NeMo_ai4bharat --no-deps
+# --no-deps skips Windows-incompatible deps (triton), so NeMo's own runtime
+# imports are listed here instead. Versions are pinned where newer releases
+# dropped APIs NeMo 1.23 still imports (huggingface_hub.ModelFilter,
+# pytorch_lightning NeptuneLogger, datasets 3 pulling hub>=1.0) or where a
+# newer release requires numpy>=2 (pyannote 6, onnx 1.19+ via ml_dtypes).
+# numpy stays <2 above: NeMo 1.23 still calls np.sctypes, removed in 2.0.
+# NeMo's ASR import chain pulls these in unconditionally, and `--no-deps` means
+# NeMo cannot install them itself. Without them backend/asr.py's load() raises
+# ModuleNotFoundError and the microphone path is silently unavailable - the
+# server still starts and answers, it just reports asr_ready:false (see
+# main.py's lifespan and /api/health), which is easy to mistake for a model-
+# access problem rather than a missing package. Found one at a time by loading
+# the model until it stopped raising: librosa (preprocessing.features),
+# sentencepiece (the multilingual tokenizer), jiwer (WER metrics, imported at
+# module scope by the ASR collection).
+librosa>=0.10,<0.11
+sentencepiece
+jiwer
+editdistance
+braceexpand
+hydra-core>1.3,<=1.3.2
+pytorch-lightning==2.2.5
+datasets<3
+lhotse
+pandas
+inflect
+matplotlib
+ipython
+pyannote.core==5.0.0
+pyannote.metrics==3.2.1
+onnx<1.19
+webdataset
+wrapt
+ruamel.yaml
+tensorboard
+text-unidecode
+wget

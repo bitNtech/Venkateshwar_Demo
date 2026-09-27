@@ -1,0 +1,26 @@
+# ARUVI hospital voicebot — Ollama wrapper for the FINE-TUNED model.
+#
+# The base-model equivalent lives in ../Modelfile. This one is built from the
+# GGUF that finetune/merge_and_export.py + llama.cpp produce, so the two can be
+# registered side by side (aruvi-base / aruvi-ft) and compared on the same call.
+#
+# num_ctx is set explicitly because Ollama's default is VRAM-derived (often
+# 2048-4096) and would silently truncate the system prompt before its language
+# rules — the exact bug that made the agent answer in English and invent a
+# caller mobile number.
+#
+# 8192, not 32768: backend/prompt_builder.py sends the condensed runtime core
+# plus ONE flow playbook — measured at ~1.8-2.5k tokens with the Qwen3
+# tokenizer — instead of the 15k master spec, so 8192 holds it plus a full
+# call's history with room to spare. 32768 allocates a KV cache far too large
+# for a 4GB card (a trivial generation measured 222s on CPU at that setting).
+#
+# temperature 0.3 matches ../Modelfile: this is a hospital front desk reading
+# back reference IDs, not a creative writer.
+#
+# Build:  ollama create aruvi-ft -f Modelfile   (from the dir holding the GGUF)
+# Use:    LLM_MODEL=aruvi-ft in .env
+FROM ./aruvi-merged.gguf
+
+PARAMETER num_ctx 8192
+PARAMETER temperature 0.3

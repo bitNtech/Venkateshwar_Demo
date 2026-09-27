@@ -1,0 +1,82 @@
+FLOW 09
+Referral Request / Status
+
+ INTENT referral.status
+
+ SCENARIO Caller chases a referral to a neurologist at a tertiary centre; referral letter pending doctor signature.
+
+ ENTITIES referral_id, referring_doctor, specialty, target_hospital, referral_status, expected_date
+
+ OUTCOME Referral REF-3320 signed same day; letter emailed and hard copy at Block A reception.
+
+ AGENT வண க , அ வ ஹா ப ட patient services. நா( அ வ ( ேப.ேற(.
+ Vanakkam, Aruvi Hospital patient services. Naan Ashwin pesaren.
+
+ CALLER சா<, எ( கணவ 3 neurology referral ேக$L இ Nேதா . அH எ(ன ஆJ.(: ெதரியல.
+ Sir, en kanavarukku neurology referral kettu irunthom. Athu enna aachunnu theriyala.
+
+ AGENT பா கேற( ேமட . Patient ேப , MRN ெசா =1க?
+ Paakkaren madam. Patient peru, MRN sollunga?
+
+ CALLER Karthikeyan, MRN ARV-102889.
+ Karthikeyan, MRN ARV-102889.
+
+ AGENT ஒ நEமிஷ ... ஆமா ேமட , Dr. Balaji கடNத ெவ\ளி கEழைம referral request ேபா$L இ கா . Referral ID REF-
+ 3320, neurology, NIMS Tertiary Centre- 3.
+ Oru nimisham... Aamaam madam, Dr. Balaji kadantha Vellikkizhamai referral request pottu irukkaaru. Referral ID REF-3320, neurology,
+ NIMS Tertiary Centre-ku.
+
+ CALLER ஐNH நா\ ஆய LJ. சா<. இ(: எ1க2 3 எNத தகவ= வரல.
+ Ainthu naal aayiduchu sir. Innum engalukku entha thagavalum varala.
+
+ AGENT சரியா ெசா(b1க ேமட , தாமத தா(. Status பா*தா — clinical summary தயா<, ஆனா doctor signature இ(:
+ pending-ல இ 3. அH ? Mசா தா( letter release ஆ3 .
+ Sariyaa sonneenga madam, thaamatham thaan. Status paathaa — clinical summary thayaar, aanaa doctor signature innum pending-la
+ irukku. Athu mudinjaa thaan letter release aagum.
+
+ CALLER அH எ5ேபா ? Q ? அவ 3 தைலவ#Q ைக மர*H5 ேபாறH அதEகமாகE$ேட வ H.
+ Athu eppo mudiyum? Avarukku thalaivaliyum kai marathup porathum athikamaagitte varuthu.
+
+ AGENT அறA3றA அதEகமா3H(: ெசா e1க — அைத நா( case-ல priority-ஆ note ப6ேற( ேமட . Dr. Balaji
+ இ(ைன 3 மாைல OP-ல இ கா , நா( ேநரா அவேராட coordinator-கE$ட ேபசA இ(ைன ேக sign வா1கEடேற(.
+ Arikuri athikamaaguthunnu solreenga — athai naan case-la priority-aa note panren madam. Dr. Balaji innaikku maalai OP-la irukkaaru,
+ naan neraa avaroda coordinator-kitta pesi innaikke sign vaangidaren.
+
+ CALLER Letter வNத ப ற3 நா1க எ(ன ப6ண: ?
+ Letter vantha piragu naanga enna pannanum?
+
+ AGENT Letter-ஓட ெர6L வ ஷய வ ேமட — clinical summary, அ5Pற MRI, blood reports எ லா*ேதாட soft copy.
+ அைத எL*H$L NIMS neurology OP- 3 ேபாகU . Referral இ Nதா அ1க waiting list-ல ?(னா வ .
+ Letter-oda rendu vishayam varum madam — clinical summary, appuram MRI, blood reports ellaathoda soft copy. Athai eduthuttu NIMS
+ neurology OP-ku poganum. Referral irunthaa anga waiting list-la munnadi varum.
+
+ CALLER அ1க appointment-ஐ g1கேள book ப6ணி த k1களா?
+ Anga appointment-ai neengale book panni tharuveengalaa?
+
+ AGENT ேநர யா book ப6ண ? யாH ேமட , அH அவ1க system. ஆனா referral-ஓட ஒ coordination number
+ ெகாL5ேபா , அH 3 call ப6ணா அவ1க slot ெகாL*HLவா1க.
+ Neradiyaa book panna mudiyaathu madam, athu avanga system. Aanaa referral-oda oru coordination number koduppom, athukku call
+ pannaa avanga slot koduthuduvaanga.
+
+ CALLER சரி சா<. Letter எ5ப கEைட 3 ?
+ Sari sir. Letter eppadi kidaikkum?
+
+ AGENT ெர6L வழி — உ1க email- 3 PDF அ:5பேறா , hard copy Block A reception-ல ெவJ.டேறா . ID கா$
+ வா1கE கலா .
+ Rendu vazhi — unga email-ku PDF anuppurom, hard copy Block A reception-la vechudurom. ID kaatti vaangikkalaam.
+
+ CALLER ந லH. இ(ைன 3 மாைல 3\ள உjதEயா ? Qமா சா<? நாைள 3 ஊ<ல இ NH வர ேவ6 இ 3.
+ Nallathu. Innaikku maalaikkulla uruthiyaa mudiyumaa sir? Naalaikku oorla irunthu vara vendi irukku.
+
+ AGENT நா( இ(ைன 3 மாைல ஆj மணி 3\ள உ1க2 3 call ப6ணி status ெசா ேற( ேமட — ? Mசா= ,
+ ? யைலனா= . அ5ப ஒ commitment தேர(.
+ Naan innaikku maalai aaru manikkulla ungalukku call panni status solren madam — mudinjaalum, mudiyalainaalum. Appadi oru
+ commitment tharen.
+
+CALLER ெரா ப ந(றA சா<. அHேவ ெபரிய relief.
+ Romba nandri sir. Athuve periya relief.
+
+ AGENT ந(றA ேமட . இH 3\ள அறA3றA தEq<: ெரா ப ேமாசமானா — ேபJ. தLமாiற , ஒ ப க பலkன —
+ கா*தE காம emergency- 3 வNHL1க. வண க .
+ Nandri madam. Ithukkulla arikuri thideernu romba mosamaanaa — pechu thadumaatram, oru pakkam palaveenam — kaathirukkaama
+ emergency-ku vanthudunga. Vanakkam.

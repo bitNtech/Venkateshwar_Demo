@@ -1,0 +1,91 @@
+FLOW 13
+New Patient Registration
+
+ INTENT patient.register
+
+ SCENARIO First-time caller registers herself and her child, gets MRN, and books a paediatric slot.
+
+ ENTITIES full_name, dob, gender, mobile, address, emergency_contact, allergies, mrn, appointment_slot
+
+ OUTCOME Two MRNs created (ARV-142771, ARV-142772). Paediatric slot Sat 10:15 AM booked.
+
+ AGENT வண க , அ வ ஹா ப ட registration. நா( பவ *ரா ேப.ேற(.
+ Vanakkam, Aruvi Hospital registration. Naan Pavithra pesaren.
+
+ CALLER ேமட , நா1க PHசா இNத ஏரியாZ 3 வNதE ேகா . Hospital-ல register ப6ணி கU .
+ Madam, naanga puthusaa intha area-vukku vanthirukkom. Hospital-la register pannikkanum.
+
+ AGENT வரேவiகEேறா ேமட . Phone-லேய register ப6ணிடலா . உ1க ?c ேப ெசா =1க?
+ Varaverkirom madam. Phone-layea register pannidalaam. Unga muzhu peru sollunga?
+
+ CALLER Thenmozhi Rajkumar.
+ Thenmozhi Rajkumar.
+
+ AGENT Spelling conﬁrm ப6ணி கேற( — T-H-E-N-M-O-Z-H-I, Rajkumar. சரியா?
+ Spelling confirm pannikkaren — T-H-E-N-M-O-Z-H-I, Rajkumar. Sariyaa?
+
+ CALLER ஆமா சரி.
+ Aamaam sari.
+
+ AGENT Date of birth?
+ Date of birth?
+
+ CALLER 1990, ஏ5ர 17.
+ 1990, April 17.
+
+ AGENT ந(றA. இ5ேபா இ கEற address ெசா =1க?
+ Nandri. Ippo irukkira address sollunga?
+
+ CALLER Flat 402, Green Meadows, Perungudi, Chennai 600096.
+ Flat 402, Green Meadows, Perungudi, Chennai 600096.
+
+ AGENT Emergency contact ஒ *த< ேப number- ெசா =1களா? ெபாHவா 3L ப*Hல ஒ *த<.
+ Emergency contact oruthar perum number-um sollungalaa? Pothuva kudumbathula oruthar.
+
+ CALLER எ( கணவ< Rajkumar, 98844 07716.
+ En kanavar Rajkumar, 98844 07716.
+
+ AGENT ந(றA ேமட . ஒ ? கEயமான ேக\வ — ஏதாவH ம NH 3 allergy இ கா? உதாரணமா penicillin, sulfa
+ மாதEரி?
+ Nandri madam. Oru mukkiyamaana kelvi — ethaavathu marunthukku allergy irukkaa? Uthaaranamaa penicillin, sulfa maathiri?
+
+ CALLER என 3 ெதரிM. எHZ இ ல. ஆனா எ( ைபய: 3 dust allergy இ 3.
+ Enakku therinju ethuvum illa. Aanaa en paiyanukku dust allergy irukku.
+
+ AGENT அைதQ note ப6ணி கேற(. ைபய: 3 register ப6ணிடலாமா ேமட ?
+ Athaiyum note pannikkaren. Paiyanukkum register pannidalaamaa madam?
+
+ CALLER ஆமா ப6ணிL1க. ேப Aadhav Rajkumar, 2019, ஜனவரி 8.
+ Aamaam pannidunga. Peru Aadhav Rajkumar, 2019, January 8.
+
+ AGENT ெர6L ேப 3 register ஆய LJ.. உ1க MRN ARV-142771, ைபய: 3 ARV-142772. ெர6ைடQ SMS-ல
+ அ:5பேற(, phone-ல save ப6ணி ெவJ. ேகா1க.
+ Rendu perukkum register aayiduchu. Unga MRN ARV-142771, paiyanukku ARV-142772. Rendaiyum SMS-la anuppuren, phone-la save panni
+ vechukkonga.
+
+ CALLER ந லH ேமட . ைபய: 3 ஒ general check-up ேவU , அHZ book ப6ண ? Qமா?
+ Nallathu madam. Paiyanukku oru general check-up venum, athuvum book panna mudiyumaa?
+
+ AGENT க6 5பா. Dr. Shanthi paediatrics — சனி கEழைம காைல 10:15 free-ஆ இ 3. Weekend-னா ப\ளி ]ட
+ problem இ காH.
+ Kandippa. Dr. Shanthi paediatrics — Sanikkizhamai kaalai 10:15 free-aa irukku. Weekend-naa pallikkoodam problem irukkaathu.
+
+ CALLER ஆமா , அH தா( ந லH. Book ப6ணிL1க.
+ Aamaam, athu thaan nallathu. Book pannidunga.
+
+AGENT Booked ேமட , appointment ID APT-80554. ?த தடைவ வ<றதால, Aadhaar copy- ைபயேனாட vaccination card-
+ எL*H$L வா1க.
+ Booked madam, appointment ID APT-80554. Muthal thadava varrathaal, Aadhaar copy-um paiyanoda vaccination card-um eduthuttu
+ vaanga.
+
+ CALLER சரி. Hospital எ5ப வ<றH?
+ Sari. Hospital eppadi varrathu?
+
+ AGENT OMR-ல Perungudi signal-ல இ NH ெர6L கEேலாr$ட<. SMS-ல location link- அ:5பேற( ேமட .
+ OMR-la Perungudi signal-la irunthu rendu kilometre. SMS-la location link-um anuppuren madam.
+
+ CALLER ெரா ப ந(றA ேமட .
+ Romba nandri madam.
+
+ AGENT ந(றA ேமட . எ1க hospital- 3 வரேவiகEேறா . வண க .
+ Nandri madam. Enga hospital-ku varaverkirom. Vanakkam.

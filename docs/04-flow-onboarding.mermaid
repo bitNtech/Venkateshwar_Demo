@@ -1,0 +1,29 @@
+flowchart TD
+    S1["Deal closed<br/>package chosen"] --> S2["Create organisation in ops console"]
+    S2 --> S3["Attach plan<br/>entitlements generated from plan defaults"]
+    S3 --> S4{"Deployment profile"}
+    S4 -- "managed cloud" --> S5["Provision cloud tenant<br/>sandbox plus production environments"]
+    S4 -- "on-premise" --> S6["Register site, issue licence key<br/>install runtime and local models"]
+    S5 --> S7["Invite client users<br/>roles assigned"]
+    S6 --> S7
+
+    S7 --> S8["Requirement study<br/>call types, workflows, systems"]
+    S8 --> S9["Clone blueprint<br/>hospital front desk / collections"]
+    S9 --> S10["Author agent version v1<br/>sections, persona, language variants"]
+    S10 --> S11["Connect integrations<br/>credentials stored in vault"]
+    S11 --> S12["Bind tools to agent version<br/>schemas and write permissions"]
+    S12 --> S13["Attach channel<br/>number or SIP trunk plus routing rules"]
+
+    S13 --> S14["Test in sandbox<br/>live test calls plus scenario suite"]
+    S14 --> S15{"Passes acceptance"}
+    S15 -- "no" --> S16["Fix affected sections only"]
+    S16 --> S14
+    S15 -- "yes" --> S17{"Within plan limits"}
+    S17 -- "no" --> S18["Upgrade plan or reduce scope"]
+    S18 --> S17
+    S17 -- "yes" --> S19["Publish to production<br/>signed snapshot released"]
+
+    S19 --> S20["Go-live checklist<br/>handoff target, quiet hours, retention"]
+    S20 --> S21["Live traffic<br/>CDR, latency and usage metered"]
+    S21 --> S22["Ongoing tuning loop"]
+    S22 -.-> S10

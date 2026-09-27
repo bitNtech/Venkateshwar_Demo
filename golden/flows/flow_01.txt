@@ -1,0 +1,77 @@
+FLOW 01
+Appointment Booking
+
+ INTENT appointment.book
+
+ SCENARIO New cardiology consult. Caller is the patient himself, existing MRN in system.
+
+ ENTITIES patient_name, mobile, department, doctor_name, appointment_date, appointment_time, appointment_id, consultation_fee
+
+ OUTCOME Booked — Sat 14th, 5:00 PM, Dr. Ramanathan, APT-77219. SMS confirmation sent.
+
+ AGENT வண க , அ வ ம ெபஷா#$ ஹா ப ட . நா( காய*ரி ேப.ேற(. உ1க2 3 எ5ப help
+ ப6ணலா ?
+ Vanakkam, Aruvi Multispeciality Hospital. Naan Gayathri pesaren. Ungalukku eppadi help pannalam?
+
+ CALLER வண க ேமட . Cardiology-ல ஒ appointment book ப6ண: .
+ Vanakkam madam. Cardiology-la oru appointment book pannanum.
+
+ AGENT க6 5பா சா<. Patient ேப ெசா =1க?
+ Kandippa sir. Patient peru sollunga?
+
+ CALLER ேபஷ6$ நா( தா(. எ( ேப ? ேகச(, வய. 58.
+ Patient naan thaan. En peru Murugesan, vayasu 58.
+
+ AGENT ந(றA ? ேகச( சா<. உ1க registered mobile number ஒ தடைவ ெசா =1களா?
+ Nandri Murugesan sir. Unga registered mobile number oru thadava sollungala?
+
+ CALLER 98407 21534.
+ 98407 21534.
+
+ AGENT ஒ நEமிஷ சா<, system-ல check ப6ேற(... ஆமா , MRN ARV-118342, address T. Nagar-: இ 3. சரியா?
+ Oru nimisham sir, system-la check panren... Aamaam, MRN ARV-118342, address T. Nagar-nu irukku. Sariya?
+
+ CALLER ஆமா சரி தா(.
+ Aamaam sari thaan.
+
+ AGENT ந லH. ?(னா எ5பவாJ. cardiology-ல consult ப6ணி இ K1களா, இ ல ﬁrst time-ஆ?
+ Nallathu. Munnadi eppavaachum cardiology-la consult panni irukkeengala, illa first time-aa?
+
+ CALLER First time தா(. ெர6L வாரமா ெகாMச நடNதாேல OJ. வா13H, அதா( பா கலா :.
+ First time thaan. Rendu vaarama konjam nadanthaale moochu vaanguthu, athaan paakkalaam-nu.
+
+ AGENT PரிQH சா<. Dr. Ramanathan senior interventional cardiologist. அவேராட slots இ 3 — நாைள 3 காைல 10:30,
+ இ ைல(னா சனி கEழைம மாைல 5:00. எH உ1க2 3 convenient?
+ Puriyuthu sir. Dr. Ramanathan senior interventional cardiologist. Avaroda slots irukku — naalaikku kaalai 10:30, illainna Sanikkizhamai
+ maalai 5:00. Ethu ungalukku convenient?
+
+ CALLER நாைள 3 காைல(னா oﬃce இ 3 ேமட . சனி கEழைம 5 மணி ெவJ. கலா .
+ Naalaikku kaalai-nna office irukkum madam. Sanikkizhamai 5 mani vechukkalaam.
+
+ AGENT சரி சா<. சனி கEழைம, 14th, மாைல 5 மணி, Dr. Ramanathan, Block B, second ﬂoor, Room 214. Consultation fee ₹800.
+ Sari sir. Sanikkizhamai, 14th, maalai 5 mani, Dr. Ramanathan, Block B, second floor, Room 214. Consultation fee ₹800.
+
+ CALLER ECG எ லா அ(ைன ேக ப6ண ? Qமா?
+ ECG ellaam annaikke panna mudiyuma?
+
+ AGENT Doctor advise ப6ணா same day-ல ப6ணிடலா சா<. Ground ﬂoor-ல diagnostics 24 hours open. Appointment
+ time- 3 பதEனM. நEமிஷ ?(னா வNH registration counter-ல token வா1கE ேகா1க.
+ Doctor advise panna same day-la pannidalaam sir. Ground floor-la diagnostics 24 hours open. Appointment time-ku pathinanju nimisham
+ munnadi vanthu registration counter-la token vaangikkonga.
+
+ CALLER சரி ேமட . ஏதாவH கா#யா வர ேவ6 யH இ கா?
+ Sari madam. Ethaavathu kaaliya vara vendiyathu irukka?
+
+ AGENT இ5ேபாைத 3 fasting ேதைவ இ ல சா<. Old reports ஏதாவH இ Nதா எL*H$L வா1க, doctor- 3 useful-ஆ
+ இ 3 .
+ Ippothaikku fasting thevai illa sir. Old reports ethaavathu irunthaa eduthuttu vaanga, doctor-ku useful-aa irukkum.
+
+ AGENT Booking conﬁrm ஆய LJ.. Appointment ID APT-77219. SMS உ1க number- 3 உடேன வNHL . ேவற ஏதாவH help
+ ேவUமா?
+ Booking confirm aayiduchu. Appointment ID APT-77219. SMS unga number-ku udane vanthudum. Vera ethaavathu help venuma?
+
+ CALLER இ ல ேமட , இH ேபாH . ெரா ப ந(றA.
+ Illa madam, ithu pothum. Romba nandri.
+
+AGENT ந(றA சா<. Take care ப6U1க, ந ல நாளா இ க$L . வண க .
+ Nandri sir. Take care pannunga, nalla naala irukkattum. Vanakkam.

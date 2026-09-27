@@ -1,0 +1,2 @@
+# bash refuses CRLF scripts; keep them LF even on a Windows checkout.
+*.sh text eol=lf
