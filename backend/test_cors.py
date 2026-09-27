@@ -33,15 +33,9 @@ from backend.main import app
 
 class _Ready:
     ready = True
-    settings = type("S", (), {"model": "m", "base_url": "u"})()
-
-    async def reachable(self):
-        return True
 
 app.state.asr = _Ready()
-app.state.conversation = _Ready()
-app.state.llm = _Ready()
-app.state.tts = _Ready()
+app.state.settings = type("S", (), {"language": "ta", "decoding": "rnnt"})()
 
 client = TestClient(app)
 response = client.get("/api/health", headers={"Origin": sys.argv[1]})

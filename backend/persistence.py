@@ -11,8 +11,8 @@ event shape it already builds is exactly what gets stored.
 SQLite (stdlib, one file, no server) is enough for v1's single-process
 deployment - see PersistenceSettings. sqlite3 connections aren't thread/task
 -safe for concurrent writers, so writes go through asyncio.to_thread() with
-one connection per call to CallEventStore.record(), mirroring how asr.py/
-tts.py already push blocking model calls off the event loop.
+one connection per call to CallEventStore.record(), mirroring how asr.py
+already pushes blocking model calls off the event loop.
 """
 
 from __future__ import annotations

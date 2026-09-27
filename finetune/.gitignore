@@ -1,9 +1,0 @@
-# Build products of the pipeline in README.md. All are reproducible from the
-# PDF and the base model, and the GGUFs run to several GB.
-flows.json
-train.jsonl
-val.jsonl
-aruvi-lora/
-aruvi-merged/
-*.gguf
-__pycache__/

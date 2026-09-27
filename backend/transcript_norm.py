@@ -103,31 +103,19 @@ _ENGLISH_WORDS: dict[str, str] = {
     "பீடியாட்ரிக்": "Paediatrics",
 }
 
-# Generated coverage, merged UNDER the table above.
+# Generated coverage (data/asr_lexicon.json), merged UNDER the table above.
 #
-# The hand table is small, and "small" is the real complaint: a caller who says
-# a word nobody typed into it hears it come back as mangled Tamil.
-# backend/scripts/build_asr_lexicon.py grows it WITHOUT anyone maintaining a
-# list - it takes every Latin word out of golden/ (the prompt, the exemplars,
-# the flow transcripts), speaks each one with the agent's own Tamil voice,
-# transcribes it with the caller's own ASR, and records what came back. Add a
-# department to the prompt and it is covered on the next build.
+# Built offline by speaking each Latin word of a hospital-desk vocabulary in a
+# Tamil voice, transcribing it with this same ASR, and recording what came back
+# - so a caller's "appointment" that the model writes in Tamil script is turned
+# back into the English word. Generated forms that collided with real Tamil
+# words were rejected at build time.
 #
-# Two properties make this safe to merge blindly, and both matter:
-#
-#   1. It is still EXACT, whole-word matching. HANDOFF.md Sec6c measured every
-#      fuzzy/transliterating alternative and all of them corrupted ordinary
-#      Tamil - "சொல்லுங்க" (tell me) came back as "silence". Going forwards
-#      (English -> expected Tamil form) instead of backwards means a form no
-#      English source produced can never be matched at all.
-#   2. The builder REJECTS any generated form that collides with real Tamil
-#      appearing in golden/, which is what stops the romanised-Tamil words in
-#      the prompt ("aamaam", "anga") from teaching this to rewrite ஆமாம்.
-#
-# The hand table wins every conflict: these entries can only add coverage, and
-# a missing or malformed file simply means the hand table alone, which is
-# exactly the behaviour before this existed.
-_LEXICON_PATH = pathlib.Path(__file__).resolve().parent.parent / "golden" / "asr_lexicon.json"
+# Safe to merge blindly because it is still EXACT, whole-word matching: every
+# fuzzy/transliterating alternative measured corrupted ordinary Tamil
+# ("சொல்லுங்க" came back as "silence"). The hand table wins every conflict, and
+# a missing or malformed file simply means the hand table alone.
+_LEXICON_PATH = pathlib.Path(__file__).resolve().parent.parent / "data" / "asr_lexicon.json"
 
 
 def _load_generated_lexicon() -> dict[str, str]:

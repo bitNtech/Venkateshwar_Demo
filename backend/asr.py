@@ -118,30 +118,6 @@ class IndicConformerAsr:
             )
         return self._unwrap(result)
 
-    def transcribe_raw(self, samples: np.ndarray, language: str) -> str:
-        """The model's own output, with NO transcript normalisation applied.
-
-        Only backend/scripts/build_asr_lexicon.py wants this. That script
-        builds the normaliser's lexicon by round-tripping English words through
-        TTS and back through this model, so it must see what the model
-        actually emitted - feeding it normalised text would make the result
-        depend on how much the normaliser already knows, and the lexicon would
-        stop growing at whatever it happened to cover already.
-        """
-        if self._model is None:
-            raise RuntimeError("ASR model is not loaded")
-        result = self._model.transcribe(
-            [self._normalize(samples)],
-            batch_size=1,
-            language_id=language,
-            verbose=False,
-        )
-        while isinstance(result, (list, tuple)):
-            if not result:
-                return ""
-            result = result[0]
-        return str(result).strip()
-
     def transcribe_partial(self, samples: np.ndarray, language: str) -> str:
         """Fast interim transcript for a rolling, not-yet-endpointed buffer.
 

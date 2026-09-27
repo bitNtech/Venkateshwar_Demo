@@ -23,27 +23,14 @@ transformers>=4.40,<5
 onnxruntime>=1.17
 soundfile>=0.12
 huggingface_hub==0.23.2
-openai>=1.0,<2
 cryptography>=42.0
 
-# TTS_ENGINE=edge (backend/settings.py's default): Microsoft neural voices, no
-# API key, CPU-only. soundfile is already pinned above and does the MP3 decode -
-# that needs libsndfile >= 1.1, which soundfile >= 0.12 bundles; EdgeTts.load()
-# checks and fails loudly at startup rather than mid-call if it is older.
-edge-tts>=7.0
-# Client for the Fish TTS server (TTS_ENGINE=fish): its WebSocket speaks msgpack.
+# WebSocket client for backend/scripts/e2e_check.py (uvicorn[standard] ships it too).
 websockets>=12
-ormsgpack>=1.4
 
-# backend/telephony.py's u-law<->PCM transcoding: stdlib audioop covers this
-# today (Python 3.10/3.11/3.12, per Sec5's pin); this backport is the official
-# drop-in replacement once audioop is removed from the stdlib in 3.13+.
-audioop-lts; python_version >= "3.13"
 
-# Testing only - conversation.py/llm.py tests are async (streaming LLM
-# client), unlike the existing sync vad/asr tests.
+# Testing only.
 pytest>=8.0
-pytest-asyncio>=0.24
 
 # ASR also needs the AI4Bharat NeMo fork, which is NOT on PyPI - stock
 # nemo-toolkit cannot load IndicConformer's multilingual tokenizer:
